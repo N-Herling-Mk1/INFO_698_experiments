@@ -1,0 +1,11 @@
+# extends _base defaults conceptually; resolved by train.py
+model: beardown            # -> src/models/beardown.py  (STUB until target confirmed)
+features: tabular_58feat   # TODO: match BEARDOWN's actual feature pipeline
+split:
+  mode: track              # naive_random | track | artist  (default: honest)
+  seed: 0
+train:
+  epochs: 50
+  batch_size: 32
+  lr: 1.0e-3
+paper_target: {}           # TODO: fill with BEARDOWN's reported number

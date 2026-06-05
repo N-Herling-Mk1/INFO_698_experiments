@@ -1,0 +1,17 @@
+[project]
+name = "forge-experiments"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy", "pandas", "scikit-learn",
+  "librosa", "soundfile",          # audio (needs libsndfile1+ffmpeg system libs)
+  "matplotlib",                     # EDA figures
+  "torch",                          # models (heavy)
+  "pyyaml",
+  "ptflops",                        # FLOPs estimate for compute.json
+  "psutil",                         # RSS for compute.json
+  "tqdm",
+]
+
+[tool.uv]
+# pin exactly once stable: `uv lock` -> commit uv.lock (the lockfile IS the experiment)

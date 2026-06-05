@@ -1,0 +1,10 @@
+# data + run artifacts never committed (genealogy travels via manifest.json)
+**/data/raw/
+**/data/interim/
+**/runs/
+**/eda/figures/*.png
+**/data/eda_stats.json
+.venv/
+__pycache__/
+*.pyc
+uv.lock.bak

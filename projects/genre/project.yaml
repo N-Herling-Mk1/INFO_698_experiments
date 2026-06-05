@@ -1,0 +1,18 @@
+# Genealogy header for the genre project. Drives the site's "project genealogy".
+project: genre
+domain: "Music Information Retrieval — genre recognition"
+dataset:
+  name: GTZAN
+  source: "Tzanetakis & Cook, IEEE TSAP 2002"
+  license: "see GTZAN usage terms"
+  representations: [raw_audio, tabular_58feat, mel_spectrogram]
+  known_issues:
+    - "jazz.00054 corrupt"
+    - "Sturm 2013: duplicates / mislabels / artist repetition"
+reproductions:
+  - id: beardown
+    source: "TBD — link repo / INFO 510 classifier"
+    target_metric: TBD
+  - id: transformer
+    source: "TBD — EAViT / improved-ViT / attention-CNN"
+    target_metric: TBD  # paper-reported accuracy

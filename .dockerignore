@@ -1,0 +1,7 @@
+.git
+**/data/raw
+**/data/interim
+**/runs
+**/__pycache__
+.venv
+*.pyc
