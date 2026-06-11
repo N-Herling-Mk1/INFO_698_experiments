@@ -1,7 +1,10 @@
 .git
-**/data/raw
-**/data/interim
-**/runs
-**/__pycache__
-.venv
+**/__pycache__/
 *.pyc
+.venv/
+dist/
+# raw/interim data + run artifacts are mounted at runtime, not baked into the image
+**/data/raw/
+**/data/interim/
+**/runs/
+.DS_Store

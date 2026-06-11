@@ -1,0 +1,38 @@
+# Two ways to use the image, one build.
+#   make up                  -> dashboard (genre) at http://localhost:5000
+#   EXP=atlas make up        -> dashboard for another experiment
+#   make lab                 -> interactive shell for EDA / training
+#
+# The repo is bind-mounted at /workspace so edits are live; the Python env lives
+# at /opt/forge-venv (built into the image) and is NOT shadowed by the mount.
+
+services:
+  dashboard:                       # the local server, in a container
+    build: .
+    image: forge:cpu
+    environment:
+      FORGE_HOST: "0.0.0.0"        # bind all interfaces so the host can reach it
+      FORGE_PORT: "5000"
+    ports:
+      - "${PORT:-5000}:5000"
+    volumes:
+      - ".:/workspace"
+    command: python projects/${EXP:-genre}/app/server.py
+
+  lab:                             # EDA, training, jupyter — the heavy ML side
+    build: .
+    image: forge:cpu
+    volumes:
+      - ".:/workspace"
+    ports:
+      - "8888:8888"                # jupyter, if you start one
+    stdin_open: true
+    tty: true
+    command: bash
+    # GPU: build with the TF GPU base, then uncomment on an NVIDIA box
+    # with the container toolkit installed:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: ["gpu"]

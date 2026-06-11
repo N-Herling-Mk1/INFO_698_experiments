@@ -1,0 +1,14 @@
+# Genealogy header for the phonon project. Drives the site's "project genealogy".
+project: phonon
+domain: "Condensed matter — phonon density of states"
+status: skeleton            # skeleton | active | complete
+dataset:
+  name: TBD
+  source: "TBD (DOS reproduction paper)"
+  license: "TBD"
+  representations: [TBD]
+  known_issues: []          # emitted by eda/run_eda.py
+reproductions:
+  - id: phonon_net
+    source: "TBD"
+    target_metric: TBD

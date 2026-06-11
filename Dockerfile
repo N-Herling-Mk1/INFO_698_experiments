@@ -1,21 +1,30 @@
-# Tier R heavy image. One recipe, two worlds via BASE_IMAGE.
-#   CPU  : docker build -t forge-exp:cpu .
-#   CUDA : docker build --build-arg BASE_IMAGE=nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04 -t forge-exp:cuda .
+# FORGE experiments — one reproducible ML environment for all three reproductions.
+# One recipe, CPU or CUDA via BASE_IMAGE:
+#   CPU  : docker build -t forge:cpu .
+#   CUDA : docker build --build-arg BASE_IMAGE=tensorflow/tensorflow:2.16.1-gpu -t forge:gpu .
+#          (the TF GPU image already ships Python + CUDA + cuDNN — cleaner than nvidia/cuda,
+#           which has no Python. uv then pins the rest from pyproject.)
 ARG BASE_IMAGE=python:3.12-slim
 FROM ${BASE_IMAGE}
 
-# The audio trap: librosa silently fails to decode GTZAN without these.
+# librosa needs libsndfile/ffmpeg to decode audio; git/curl for tooling.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsndfile1 ffmpeg git && rm -rf /var/lib/apt/lists/*
+    libsndfile1 ffmpeg git curl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# uv for fast, locked installs
+# uv = fast, locked installs. Keep the venv OUTSIDE /workspace so a live
+# `.:/workspace` bind mount (compose) does NOT shadow the installed deps.
 RUN pip install --no-cache-dir uv
+ENV UV_PROJECT_ENVIRONMENT=/opt/forge-venv
+ENV PATH=/opt/forge-venv/bin:$PATH
 
 WORKDIR /workspace
-# Lockfile FIRST -> uv sync layer survives source edits (fast rebuilds).
+# deps first -> this layer survives source edits, so rebuilds are fast
 COPY pyproject.toml uv.lock* ./
-RUN uv sync --frozen || uv sync     # falls back if no lock yet (first build)
+RUN uv sync --extra eda --extra app --frozen || uv sync --extra eda --extra app
 
 COPY . .
 ENV PYTHONPATH=/workspace
-CMD ["bash"]
+ENV FORGE_HOST=0.0.0.0
+EXPOSE 5000
+# default service = the genre dashboard; `lab` service overrides to a shell
+CMD ["python", "projects/genre/app/server.py"]

@@ -1,10 +1,13 @@
-# data + run artifacts never committed (genealogy travels via manifest.json)
+# raw data + run artifacts never committed (genealogy travels via manifest.json)
 **/data/raw/
 **/data/interim/
 **/runs/
-**/eda/figures/*.png
-**/data/eda_stats.json
+# build outputs
+/dist/
+# NOTE: data/<phase>/eda_stats.json and eda/figures/<phase>/*.png ARE committed —
+# they are the genealogy/dashboard artifacts and must travel with the repo.
 .venv/
 __pycache__/
 *.pyc
 uv.lock.bak
+.DS_Store

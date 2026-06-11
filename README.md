@@ -1,174 +1,166 @@
-# INFO_698_experiments — Tier R (research / reproductions)
+# INFO_698_experiments — FORGE reproductions (Tier R)
 
-> **This README is the bible for the research tier.** If you're confused in week 5
-> about where something lives or why, the answer is here. Sub-folders have their own
-> READMEs (linked inline) for depth.
+Three published results, each re-run from scratch and wrapped in its own small
+full-stack dashboard. This repo runs compute and emits artifacts; each experiment
+also carries a mini-stack that serves those artifacts to a TRON-Ares UI.
 
-This repo holds the **three reproductions** of the FORGE capstone. Each is a published
-result re-run from scratch, emitting a uniform set of artifacts that the `software`
-repo and the documentation site consume. It does **not** contain any web/server code —
-that's Tier S (`INFO_698_software`). This tier's only job: *run compute, emit artifacts.*
-
-The three projects (per the Gantt):
-
-| Week | Project | Status |
-|------|---------|--------|
-| 2 | `projects/genre/`  — GTZAN music-genre recognition (2 models: BEARDOWN + transformer) | **active** |
-| 3 | `projects/phonon/` — phonon DOS reproduction | skeleton only |
-| 4 | `projects/atlas/`  — ATLAS reproduction | skeleton only |
+> **Why each experiment is self-contained.** We build three *vertical slices*
+> first and extract the shared backend later (rule of three). You don't yet know
+> the right seams between music-genre, phonon-DOS, and ATLAS reproductions, so
+> committing to a single backend up front would be guessing. Each experiment owns
+> its data, EDA, training, and dashboard; once all three exist, the common parts
+> get promoted. Until then, **shape stays rigid, content diverges** — that's what
+> keeps the eventual merge mechanical.
 
 ---
 
-## 1. Repository layout
+## Layout
 
 ```
 INFO_698_experiments/
-├── README.md                  ← you are here (the bible)
-├── pyproject.toml             # dependencies (the lockfile IS the experiment)
-├── Dockerfile                 # heavy image — see §3 Docker build plan
-├── .devcontainer/             # VS Code "Reopen in Container" config
-│   └── devcontainer.json
-├── .dockerignore / .gitignore
+├── _shared/                 # the transferable engine — import, never copy
+│   ├── schema.py            # ⭐ artifact contract: RunRecord / ComputeRecord
+│   ├── profiler.py          # compute logging -> compute.json
+│   ├── splits.py            # track-level split (leakage guard)
+│   └── eda.py               # reusable EDA helpers
 │
-├── _shared/                   # the transferable ENGINE — import, never copy
-│   ├── README.md              → _shared/README.md
-│   ├── schema.py              # ⭐ the artifact contract (run.json / compute.json)
-│   ├── profiler.py            # compute logging → compute.json
-│   ├── splits.py              # track-level split (the leakage guard)
-│   └── eda.py                 # reusable EDA plotting + stats helpers
+├── _app_template/           # ⭐ canonical mini-stack (copied to each project's app/)
+│   ├── server.py            # Flask; auto-detects root (sibling in repo / flat in bundle)
+│   ├── config.py            # phases; experiment name auto-derives from folder
+│   ├── templates/index.html · static/{css,js,assets}
+│   └── README.md
 │
-└── projects/                  → projects/README.md  (how to add project #2, #3)
-    ├── genre/                 ← THIS WEEK
-    │   ├── README.md          → projects/genre/README.md
-    │   ├── project.yaml       # genealogy header (domain, source, license, paper targets)
-    │   ├── data/              → projects/genre/data/README.md   ⭐ DATA AREA
-    │   │   ├── raw/           #   fetched GTZAN (gitignored)
-    │   │   ├── interim/       #   cached mel / 58-feat tables (gitignored)
-    │   │   └── manifest.json  #   EMITTED → genealogy source of truth
-    │   ├── configs/
-    │   │   ├── beardown.yaml
-    │   │   └── transformer.yaml
-    │   ├── src/
-    │   │   ├── features.py     # mel-spectrogram + 58-feature extraction
-    │   │   ├── models/         #   beardown.py, transformer.py
-    │   │   ├── train.py        # entrypoint: reads config → trains → emits run.json
-    │   │   └── eval.py         # scorecard: our number vs the paper's target
-    │   ├── eda/               → projects/genre/eda/README.md    ⭐ EDA AREA
-    │   │   ├── run_eda.py      #   EMITS figures/*.png + eda_stats.json
-    │   │   └── figures/
-    │   └── runs/              #   EMITTED per-run artifacts (gitignored)
-    │       └── <model>/<timestamp>/{run.json, compute.json, log.txt}
-    ├── phonon/                # week 3 — copy the genre skeleton
-    └── atlas/                 # week 4 — copy the genre skeleton
+├── tools/
+│   └── export_bundle.py     # app + a project's snapshots -> standalone zip (handoff)
+│
+├── projects/
+│   ├── genre/   ← ACTIVE (BEARDOWN, GTZAN)        # EDA done; training port next
+│   ├── phonon/  ← skeleton (week 3)
+│   └── atlas/   ← skeleton (week 4)
+│
+├── Dockerfile · pyproject.toml · README.md · LICENSE · .gitignore
 ```
 
-**Where is the data area?** → `projects/<name>/data/`. Each project owns its data.
-**Where is the EDA area?** → `projects/<name>/eda/`. Each project owns its EDA.
-Both are first-class, both emit artifacts the website reads. See their READMEs.
+## Anatomy of one experiment
 
----
+Every project is the **same skeleton** — the only divergence is content.
 
-## 2. How a project is structured (and why it's transferable)
-
-Every project is the **same skeleton**: `project.yaml` + `data/` + `configs/` + `src/` +
-`eda/` + `runs/`. Adding project #2 (phonon) and #3 (ATLAS) means copying the skeleton
-and changing three things:
-
-1. `data/` — a new data adapter (different source, different format)
-2. `src/features.py` + `src/models/` — domain-specific extraction + model
-3. `configs/*.yaml` — the knobs
-
-Everything else — the profiler, the split logic, the run.json schema, the EDA helpers —
-comes from `_shared/` by **import**, not copy. That import discipline is what makes
-weeks 3–4 cheap. If you find yourself copy-pasting from `genre/` into `phonon/`,
-stop — that code belongs in `_shared/`.
-
-### The run cadence
-`src/train.py` reads a config, runs the experiment wrapped in the profiler, and drops
-a timestamped folder under `runs/<model>/<ts>/` containing `run.json`, `compute.json`,
-and `log.txt`. That folder is the **only** thing the rest of the ecosystem cares about.
-
----
-
-## 3. Docker build plan  ⭐ (important — read before first run)
-
-**Why this repo gets the heavy image:** reproduction fidelity *is* the pinned
-environment. torch + librosa + audio system libs + (optionally) CUDA. The `software`
-repo deliberately does NOT share this image — it never imports torch.
-
-### 3.1 The audio trap (the #1 reproduction-killer)
-`librosa` silently fails to decode GTZAN audio without system codecs. The Dockerfile
-installs them up front:
-
-```dockerfile
-ARG BASE_IMAGE=python:3.12-slim          # CPU default for laptop dev/EDA/smoke runs
-FROM ${BASE_IMAGE}
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsndfile1 ffmpeg && rm -rf /var/lib/apt/lists/*
-COPY pyproject.toml uv.lock ./           # lockfile FIRST → layer cache survives edits
-RUN uv sync --frozen
-COPY . .
+```
+projects/<exp>/
+├── project.yaml            # genealogy header (domain, source, license, targets)
+├── data/
+│   ├── raw/                # fetched data — GITIGNORED (never committed)
+│   ├── manifest.json       # emitted genealogy (counts, checksums, known issues)
+│   ├── before/eda_stats.json   # pre-fix EDA snapshot   (committed — the dashboard reads it)
+│   └── after/eda_stats.json    # post-fix EDA snapshot  (committed once it exists)
+├── eda/
+│   ├── run_eda.py          # emits eda_stats.json + figures (per --phase)
+│   └── figures/{before,after}/*.png
+├── configs/                # one yaml per model/variant
+├── src/
+│   ├── features.py · models/ · train.py · eval.py   # the training tier
+├── runs/                   # emitted run.json / compute.json — GITIGNORED
+└── app/                    # copy of _app_template — serves THIS experiment's artifacts
 ```
 
-### 3.2 One Dockerfile, two worlds (CPU ↔ CUDA)
-The `BASE_IMAGE` build-arg is the switch — same recipe, same pins, no drift:
+### before / after — the two EDA snapshots
+
+`before` is the **pre-fix compendium**: the honest description of the raw data
+before any adjustment (missing/corrupt, type audit, per-feature stats + figures).
+`after` is regenerated once the fix/imputation pass runs. The dashboard toggles
+between them so a reviewer can diff exactly what the cleaning changed.
 
 ```bash
-# laptop: CPU, for EDA + smoke tests
-docker build -t forge-exp:cpu .
-
-# remote GPU box (atlng01 / eepp-bigmem3): real training
-docker build --build-arg BASE_IMAGE=nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04 \
-             -t forge-exp:cuda .
+python projects/genre/eda/run_eda.py --phase before --data-root /path/to/GTZAN/Data
+python projects/genre/eda/run_eda.py --phase after  --data-root /path/to/GTZAN/Data_fixed
 ```
 
-### 3.3 VS Code workflow (this is the "set all the python libraries" part)
-1. Open the repo folder in VS Code.
-2. Command Palette → **Dev Containers: Reopen in Container**.
-3. It builds the image, `postCreateCommand` runs `uv sync`, interpreter auto-selects.
-4. You're now in the pinned env. Run EDA / training from the integrated terminal.
+## The artifact contract
 
-For GPU dev, uncomment `"runArgs": ["--gpus","all"]` in `.devcontainer/devcontainer.json`
-(only on a box that has GPUs + the NVIDIA container toolkit).
+| File | Emitted by | Read by |
+| ---- | ---------- | ------- |
+| `data/<phase>/eda_stats.json` | `eda/run_eda.py` | dashboard (Overview/Integrity/Types/Distributions) |
+| `eda/figures/<phase>/*.png` | `eda/run_eda.py` | dashboard hero + gallery |
+| `runs/<model>/<ts>/run.json` + `compute.json` | `src/train.py` (via `_shared/schema.py`) | dashboard `/api/runs`, scorecard |
 
-### 3.4 Layer-caching rule
-Always `COPY` the lockfile **before** the source. Editing `src/` then won't bust the
-`uv sync` layer — rebuilds stay seconds, not minutes.
+`eda_stats.json` is schema-versioned (`schema: "eda_stats/1.x"`). Domains differ —
+phonon/atlas won't have spectrograms — so the dashboard degrades gracefully on
+missing blocks. Keep the core keys (`missing_corrupt`, `type_audit`, `nerd_stats`,
+`figures`) stable; add domain blocks freely.
 
----
+## The dashboard
 
-## 4. The artifact contract (what this repo emits)
-
-Defined in [`_shared/schema.py`](_shared/schema.py). Three artifacts per run:
-
-| File | Contains | Consumed by |
-|------|----------|-------------|
-| `run.json` | git SHA, config, dataset hash, per-epoch logs, final metrics | software backend, scorecard |
-| `compute.json` | wall-clock, peak VRAM/RSS, throughput, est. FLOPs/params | **cost estimates**, Gantt risk, proposal |
-| `eda_stats.json` + `figures/*.png` | dataset integrity, distributions, exemplars | doc-site genealogy + EDA panels |
-
-Do not change these shapes casually — every downstream renderer depends on them.
-
----
-
-## 5. Weekly workflow
+One small Flask app per experiment, copied verbatim from `_app_template/`. It reads
+artifacts live from disk (re-run EDA, refresh — no restart) and trains nothing.
 
 ```bash
-# 1. fetch data (once per project) — see data/README.md
-# 2. EDA — emits figures + stats the site reads
-python projects/genre/eda/run_eda.py
-# 3. train a reproduction — emits run.json + compute.json
-python projects/genre/src/train.py --config projects/genre/configs/beardown.yaml
-# 4. score it against the paper target
-python projects/genre/src/eval.py --run runs/beardown/<ts>/
+pip install flask
+python projects/genre/app/server.py        # -> http://127.0.0.1:5000
 ```
 
----
+Routes (identical across experiments): `GET /api/config`, `/api/health`,
+`/api/eda?phase=before|after`, `/api/runs`, `/figures/<phase>/<name>`.
 
-## 6. Open decisions (block full model fill-in, not scaffolding)
+**Cloning to a new experiment:** `cp -r _app_template projects/<exp>/app`. No edits —
+`server.py` finds its own root and the experiment name derives from the folder.
 
-- **BEARDOWN** — link the repo/notebook, or confirm it's the INFO 510 classifier.
-- **Transformer paper** — EAViT (3 s segments) / improved-ViT / attention-CNN?
-- **Split policy** — naive vs track/artist-aware. Current plan: log both.
+**Standalone handoff:** `python tools/export_bundle.py genre` produces
+`dist/genre-app.zip`, a flat self-contained copy (app + snapshots beside `server.py`)
+for someone who just wants to open the dashboard. It's a build artifact, not a
+second codebase.
 
-See `projects/genre/README.md` for how each decision wires into the configs.
+## Framework note
+
+The `genre` reproduction (BEARDOWN) is TensorFlow + tensorflow-probability — a
+custom Flipout Bayesian head with explicit KL, plus a BayesianRidge latent pass. It
+is not ported to torch; that would change the science. `pyproject.toml` reflects
+this. EDA and the dashboard are light (pandas/matplotlib/flask) and need no DL stack.
+
+## Status
+
+| Project | Status | Notes |
+| ------- | ------ | ----- |
+| `genre` | active | EDA compendium done (`before`); fix pass + BEARDOWN training port next |
+| `phonon` | skeleton | shape only — adapt data / eda / src |
+| `atlas` | skeleton | shape only — adapt data / eda / src |
+
+## Docker — one reproducible env, and the dashboard as a local server
+
+Docker exists here for one reason: the heavy ML stack (TensorFlow + TFP, plus
+librosa's system audio libs, plus optional CUDA) is the painful part to set up.
+The dashboard is light, but it runs happily in the same image — so **"Docker" and
+"a local server" are the same thing here**: flask runs *inside* the container and
+its port is published to your host, so you open `http://localhost:5000` in your
+normal browser while the ML environment stays sealed in the container.
+
+```bash
+make build                 # build the image once (CPU)
+make up                    # genre dashboard  -> http://localhost:5000
+EXP=atlas make up          # a different experiment's dashboard
+make lab                   # interactive shell for EDA / training
+make eda EXP=genre DATA=/data/GTZAN/Data PHASE=before
+make native                # run the dashboard WITHOUT docker (just needs flask)
+```
+
+How it fits together:
+
+- **One image, two run modes.** `docker-compose.yml` defines `dashboard` (the local
+  server) and `lab` (a shell for the heavy ML side) from the *same* build — no
+  second image to maintain.
+- **The bind fix.** A server on `127.0.0.1` inside a container is unreachable from
+  the host. `config.py` reads `FORGE_HOST`; compose sets it to `0.0.0.0`, so the
+  published port works. Run natively and it defaults back to `127.0.0.1`. Same
+  `server.py`, both worlds.
+- **Live edits.** The repo is bind-mounted at `/workspace`; the Python env lives at
+  `/opt/forge-venv` (outside the mount) so your live code edits don't shadow the
+  installed dependencies — a classic compose footgun, avoided.
+- **CPU or GPU.** Default base is `python:3.12-slim` (CPU). For CUDA, build with
+  `--build-arg BASE_IMAGE=tensorflow/tensorflow:2.16.1-gpu` (that image already
+  ships Python + CUDA + cuDNN) and uncomment the `gpu` block in compose /
+  `runArgs` in the devcontainer.
+- **VS Code.** `.devcontainer/` → "Reopen in Container" gives the full stack with
+  ports 5000/8888 forwarded and the interpreter pointed at `/opt/forge-venv`.
+
+You do **not** need Docker just to view a dashboard — `make native` (or
+`python projects/<exp>/app/server.py`) works if you have flask. Docker is for the
+reproducible heavy-ML setup; the server rides along for free.

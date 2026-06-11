@@ -1,0 +1,14 @@
+# Genealogy header for the atlas project. Drives the site's "project genealogy".
+project: atlas
+domain: "High-energy physics — ATLAS reproduction"
+status: skeleton            # skeleton | active | complete
+dataset:
+  name: TBD
+  source: "ATLAS Run 3"
+  license: "TBD"
+  representations: [TBD]
+  known_issues: []          # emitted by eda/run_eda.py
+reproductions:
+  - id: atlas_nn
+    source: "TBD"
+    target_metric: TBD
