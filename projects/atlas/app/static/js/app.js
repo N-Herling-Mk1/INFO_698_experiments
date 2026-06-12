@@ -2,13 +2,23 @@
 const $ = s => document.querySelector(s);
 let DATA = null, PHASE = "before", AVAIL = {};
 
-const figURL = file => `/figures/${PHASE}/${file}`;
+// display names: FORGE is the umbrella; each experiment has a model + task label
+const DISPLAY = {
+  genre:  "BEARDOWN · genre recognition",
+  phonon: "phonon · DOS reproduction",
+  atlas:  "atlas · Run 3",
+};
+
+// cache-bust on the EDA generation timestamp so regenerated figures never serve stale
+const figURL = file =>
+  `/figures/${PHASE}/${file}?v=${encodeURIComponent((DATA && DATA.generated) || "")}`;
 
 async function init(){
   try{
     const c = await (await fetch("/api/config")).json();
     PHASE = c.default_phase; AVAIL = c.available || {};
-    $("#expName").textContent = (c.experiment || "experiment").toUpperCase();
+    $("#expName").textContent = DISPLAY[c.experiment] || (c.experiment || "experiment").toUpperCase();
+    if (c.logo){ const el = $("#expLogo"); el.src = c.logo; el.alt = c.experiment; el.hidden = false; }
     buildPhaseToggle(c.phases || ["before","after"]);
   }catch(e){ /* config optional; fall back to before */ }
   await load();
@@ -39,14 +49,14 @@ async function load(){
 }
 function fail(msg){
   $("#cards").innerHTML = `<div class="err">⚠ ${msg}<br><span class="dim">reload after generating this snapshot</span></div>`;
-  ["#hero","#integrityPanel","#gallery"].forEach(s=>$(s).innerHTML="");
+  ["#hero","#integrityPanel","#featStats","#varDetail","#featTable"].forEach(s=>$(s).innerHTML="");
   $("#typeTable").innerHTML="";
 }
 
 function render(){
   $("#phaseBadge").textContent = DATA.phase || PHASE;
   $("#gen").textContent = DATA.generated ? "generated " + DATA.generated : "";
-  renderCards(); renderHero(); renderIntegrity(); renderTypes(); renderFigures();
+  renderCards(); renderHero(); renderIntegrity(); renderTypes(); renderFeatures();
 }
 
 function renderCards(){
@@ -107,25 +117,109 @@ function renderTypes(){
   $("#typeTable").innerHTML = html;
 }
 
-function renderFigures(){
-  const feats = (DATA.figures||[]).filter(f=>f.kind==="feature_dist");
-  const draw = q => {
-    const list = feats.filter(f=>!q || f.feature.toLowerCase().includes(q.toLowerCase()));
-    $("#figCount").textContent = list.length + " / " + feats.length;
-    $("#gallery").innerHTML = list.map(f=>`
-      <div class="tile" data-file="${f.file}" data-cap="${(f.caption||f.feature).replace(/"/g,'&quot;')}">
-        <img loading="lazy" src="${figURL(f.file)}" alt="${f.feature}">
-        <div class="cap"><b>${f.feature}</b><br>${f.caption||""}</div></div>`).join("");
-  };
-  draw($("#search").value || "");
-  $("#search").oninput = e => draw(e.target.value);
+// ---- numeric feature statistics: cards + variable toggle + sortable table ---
+const COLS = [
+  {k:"feature", label:"feature"}, {k:"mean", label:"mean"}, {k:"median", label:"median"},
+  {k:"std", label:"std"}, {k:"min", label:"min"}, {k:"max", label:"max"},
+  {k:"iqr", label:"IQR"}, {k:"n_outliers_iqr", label:"outliers"}, {k:"skew", label:"skew"},
+];
+let SORT = {k:"feature", dir:1};
+let SEL = null;
+
+const fnum = v => {
+  if (v == null || isNaN(v)) return "—";
+  const a = Math.abs(v);
+  if (a !== 0 && (a >= 1e4 || a < 1e-2)) return v.toExponential(2);
+  return (Math.round(v * 1000) / 1000).toString();
+};
+const figForFeature = f => (DATA.figures||[]).find(g=>g.kind==="feature_dist" && g.feature===f);
+
+function renderFeatures(){
+  const per = DATA.nerd_stats?.per_feature || {};
+  const names = Object.keys(per);
+  if (!names.length){ ["#featStats","#varDetail","#featTable"].forEach(s=>$(s).innerHTML=""); return; }
+
+  // dashboard statistics across all numeric features
+  let totOut=0, skewName=names[0], iqrName=names[0], flagged=0;
+  for (const n of names){
+    const p = per[n];
+    totOut += p.n_outliers_iqr || 0;
+    if (Math.abs(p.skew) > Math.abs(per[skewName].skew)) skewName = n;
+    if ((p.iqr||0) > (per[iqrName].iqr||0)) iqrName = n;
+    if ((p.outlier_pct||0) > 5) flagged++;
+  }
+  $("#featStats").innerHTML = [
+    ["numeric features", names.length], ["total outliers", totOut],
+    [">5% outliers", flagged], ["most skewed", skewName], ["widest IQR", iqrName],
+  ].map(([l,n])=>`<div class="card"><div class="n" style="font-size:18px">${n}</div><div class="l">${l}</div></div>`).join("");
+
+  $("#varSelect").innerHTML = names.map(n=>`<option value="${n}">${n}</option>`).join("");
+  $("#varSelect").onchange = e => selectVar(e.target.value);
+  $("#search").oninput = () => drawTable();
+
+  drawTable();
+  selectVar(SEL && per[SEL] ? SEL : names[0]);
 }
 
-// figure modal
-$("#gallery").addEventListener("click", e=>{
-  const t = e.target.closest(".tile"); if(!t) return;
-  $("#modalImg").src = figURL(t.dataset.file);
-  $("#modalCap").textContent = t.dataset.cap;
+function drawTable(){
+  const per = DATA.nerd_stats?.per_feature || {};
+  const q = ($("#search").value || "").toLowerCase();
+  let rows = Object.entries(per).map(([feature, p]) => ({feature, ...p}))
+                   .filter(r => !q || r.feature.toLowerCase().includes(q));
+  rows.sort((a,b)=>{
+    const x=a[SORT.k], y=b[SORT.k];
+    const c = (SORT.k==="feature") ? String(x).localeCompare(String(y)) : (x-y);
+    return c * SORT.dir;
+  });
+  $("#figCount").textContent = rows.length + " / " + Object.keys(per).length;
+  const head = COLS.map(c=>{
+    const arrow = SORT.k===c.k ? (SORT.dir>0?" ▲":" ▼") : "";
+    return `<th data-k="${c.k}" class="sortable">${c.label}${arrow}</th>`;
+  }).join("");
+  const body = rows.map(r=>{
+    const cls = r.feature===SEL ? ' class="sel"' : "";
+    const tds = COLS.map(c => c.k==="feature" ? `<td>${r.feature}</td>`
+      : c.k==="n_outliers_iqr" ? `<td>${r.n_outliers_iqr} <span class="dim">(${r.outlier_pct}%)</span></td>`
+      : `<td>${fnum(r[c.k])}</td>`).join("");
+    return `<tr data-f="${r.feature}"${cls}>${tds}</tr>`;
+  }).join("");
+  $("#featTable").innerHTML = `<tr>${head}</tr>${body}`;
+}
+
+function selectVar(name){
+  const per = DATA.nerd_stats?.per_feature || {};
+  const p = per[name]; if(!p) return;
+  SEL = name;
+  if ($("#varSelect").value !== name) $("#varSelect").value = name;
+  const fig = figForFeature(name);
+  const stats = [
+    ["count", p.count], ["mean", fnum(p.mean)], ["median", fnum(p.median)],
+    ["mode≈", fnum(p.mode_round3)], ["std", fnum(p.std)], ["min", fnum(p.min)],
+    ["max", fnum(p.max)], ["Q1", fnum(p.q1)], ["Q3", fnum(p.q3)], ["IQR", fnum(p.iqr)],
+    ["outliers", `${p.n_outliers_iqr} (${p.outlier_pct}%)`], ["skew", fnum(p.skew)],
+  ];
+  $("#varDetail").innerHTML = `
+    <div class="var-fig">${fig
+      ? `<img src="${figURL(fig.file)}" alt="${name}" data-file="${fig.file}">`
+      : `<div class="dim">no figure</div>`}</div>
+    <div class="stat-grid">${stats.map(([k,v])=>
+      `<div class="stat"><span class="sk">${k}</span><span class="sv">${v}</span></div>`).join("")}</div>`;
+  document.querySelectorAll("#featTable tr[data-f]").forEach(tr=>
+    tr.classList.toggle("sel", tr.dataset.f===name));
+}
+
+// table: sort on header click, select variable on row click
+$("#featTable").addEventListener("click", e=>{
+  const th = e.target.closest("th.sortable");
+  if (th){ const k=th.dataset.k; SORT = {k, dir: SORT.k===k ? -SORT.dir : 1}; drawTable(); return; }
+  const tr = e.target.closest("tr[data-f]");
+  if (tr){ selectVar(tr.dataset.f); $("#varDetail").scrollIntoView({behavior:"smooth", block:"nearest"}); }
+});
+
+// enlarge the selected variable's figure
+$("#varDetail").addEventListener("click", e=>{
+  const img = e.target.closest("img"); if(!img) return;
+  $("#modalImg").src = img.src; $("#modalCap").textContent = SEL || "";
   $("#modal").classList.add("open");
 });
 $("#modal").addEventListener("click", ()=>$("#modal").classList.remove("open"));

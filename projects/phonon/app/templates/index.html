@@ -10,15 +10,18 @@
 <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+<div class="forge-panel">
 <header>
   <img class="mark" src="/static/assets/forge-mark.svg" alt="FORGE">
   <span class="brand">F·O·R·G·E <b>//</b></span>
+  <img class="exp-logo" id="expLogo" alt="" hidden>
   <span class="exp" id="expName">…</span>
   <span class="badge" id="phaseBadge">—</span>
   <span class="spacer"></span>
   <div class="phase-toggle" id="phaseToggle"></div>
   <span class="gen" id="gen"></span>
 </header>
+<div class="panel-title"><span class="dot"></span> EXPLORATORY DATA ANALYSIS</div>
 <nav>
   <button class="active" data-tab="overview">Overview</button>
   <button data-tab="integrity">Integrity</button>
@@ -44,14 +47,25 @@
   </section>
 
   <section id="figures">
-    <h2>Per-feature distributions</h2>
+    <h2>Numeric feature statistics</h2>
+    <div class="cards" id="featStats"></div>
+
+    <h2>Inspect a variable</h2>
+    <div class="var-toggle">
+      <select id="varSelect"></select>
+      <span class="dim" id="varHint">pick a feature, or click a row below</span>
+    </div>
+    <div class="var-detail" id="varDetail"></div>
+
+    <h2>All features</h2>
     <div class="toolbar">
       <input id="search" placeholder="filter features…  (e.g. mfcc, tempo, rms)">
       <span class="count" id="figCount"></span>
     </div>
-    <div class="gallery" id="gallery"></div>
+    <div class="table-wrap"><table id="featTable"></table></div>
   </section>
 </main>
+</div><!-- /forge-panel -->
 
 <div class="modal" id="modal"><img id="modalImg"><div class="cap" id="modalCap"></div></div>
 

@@ -55,6 +55,20 @@ def _fig_count(phase):
     return len(list(d.glob("*.png"))) if d.exists() else 0
 
 
+def _logo():
+    """Project logo dropped into static/assets/ — any image that isn't a FORGE brand mark."""
+    d = APP_DIR / "static" / "assets"
+    brand = {"forge-mark.svg", "favicon.svg"}
+    if d.exists():
+        imgs = [p for p in d.iterdir()
+                if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+                and p.name not in brand]
+        imgs.sort(key=lambda p: (p.suffix.lower() == ".svg", p.name))  # prefer raster
+        if imgs:
+            return f"/static/assets/{imgs[0].name}"
+    return None
+
+
 # ---- routes (KEEP NAMES IDENTICAL ACROSS EXPERIMENTS) -----------------------
 @app.get("/")
 def index():
@@ -64,7 +78,7 @@ def index():
 @app.get("/api/config")
 def cfg():
     return jsonify(experiment=EXPERIMENT, phases=config.PHASES,
-                   default_phase=config.DEFAULT_PHASE,
+                   default_phase=config.DEFAULT_PHASE, logo=_logo(),
                    available={p: _stats(p).exists() for p in config.PHASES})
 
 

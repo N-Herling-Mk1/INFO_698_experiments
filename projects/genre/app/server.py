@@ -41,6 +41,15 @@ RUNS = EXP_ROOT / "runs"
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
 
+@app.after_request
+def _no_cache(resp):
+    # dev convenience: never serve stale page/app code (figures are cache-busted by ?v=)
+    if resp.mimetype in ("text/html", "text/css", "application/javascript", "text/javascript"):
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+    return resp
+
+
 def _phase():
     p = request.args.get("phase", config.DEFAULT_PHASE)
     return p if p in config.PHASES else config.DEFAULT_PHASE
@@ -55,16 +64,47 @@ def _fig_count(phase):
     return len(list(d.glob("*.png"))) if d.exists() else 0
 
 
+def _logo():
+    """Project logo dropped into static/assets/ — any image that isn't a FORGE brand mark."""
+    d = APP_DIR / "static" / "assets"
+    brand = {"forge-mark.svg", "favicon.svg"}
+    if d.exists():
+        imgs = [p for p in d.iterdir()
+                if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+                and p.name not in brand]
+        imgs.sort(key=lambda p: (p.suffix.lower() == ".svg", p.name))  # prefer raster
+        if imgs:
+            return f"/static/assets/{imgs[0].name}"
+    return None
+
+
 # ---- routes (KEEP NAMES IDENTICAL ACROSS EXPERIMENTS) -----------------------
 @app.get("/")
 def index():
     return send_file(APP_DIR / "templates" / "index.html")
 
 
+@app.get("/welcome")
+def welcome():
+    return send_file(APP_DIR / "templates" / "welcome.html")
+
+
+@app.get("/eda")
+def eda_page():
+    return send_file(APP_DIR / "templates" / "eda.html")
+
+
+@app.get("/train")
+@app.get("/model")
+@app.get("/infer")
+def stub_panel():
+    return send_file(APP_DIR / "templates" / "stub.html")
+
+
 @app.get("/api/config")
 def cfg():
     return jsonify(experiment=EXPERIMENT, phases=config.PHASES,
-                   default_phase=config.DEFAULT_PHASE,
+                   default_phase=config.DEFAULT_PHASE, logo=_logo(),
                    available={p: _stats(p).exists() for p in config.PHASES})
 
 

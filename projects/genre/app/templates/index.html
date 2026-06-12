@@ -3,58 +3,98 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FORGE · experiment dashboard</title>
+<title>BEARDOWN · FORGE</title>
 <link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
-<header>
-  <img class="mark" src="/static/assets/forge-mark.svg" alt="FORGE">
-  <span class="brand">F·O·R·G·E <b>//</b></span>
-  <span class="exp" id="expName">…</span>
-  <span class="badge" id="phaseBadge">—</span>
-  <span class="spacer"></span>
-  <div class="phase-toggle" id="phaseToggle"></div>
-  <span class="gen" id="gen"></span>
-</header>
-<nav>
-  <button class="active" data-tab="overview">Overview</button>
-  <button data-tab="integrity">Integrity</button>
-  <button data-tab="types">Types</button>
-  <button data-tab="figures">Distributions</button>
-</nav>
-<main>
-  <section id="overview" class="active">
-    <h2>Snapshot</h2>
-    <div class="cards" id="cards"></div>
-    <h2>Class balance &amp; exemplars</h2>
-    <div class="hero" id="hero"></div>
-  </section>
+<body class="shell-body">
+<div class="shell">
 
-  <section id="integrity">
-    <h2>Missing / corrupt</h2>
-    <div class="panel" id="integrityPanel"></div>
-  </section>
-
-  <section id="types">
-    <h2>Type audit — expected vs actual</h2>
-    <div class="panel"><table id="typeTable"></table></div>
-  </section>
-
-  <section id="figures">
-    <h2>Per-feature distributions</h2>
-    <div class="toolbar">
-      <input id="search" placeholder="filter features…  (e.g. mfcc, tempo, rms)">
-      <span class="count" id="figCount"></span>
+  <!-- top frame -->
+  <header class="topframe">
+    <img class="shell-logo" id="shellLogo" alt="" hidden>
+    <div class="shell-brand">
+      <span class="shell-fk">F·O·R·G·E //</span>
+      <span class="shell-title" id="shellTitle">BEARDOWN</span>
     </div>
-    <div class="gallery" id="gallery"></div>
-  </section>
-</main>
+    <span class="top-spacer"></span>
+    <!-- inert top button slots (functionality TBD) -->
+    <div class="top-slots">
+      <button class="top-btn" disabled title="(reserved)">⟳</button>
+      <button class="top-btn" disabled title="(reserved)">⚙</button>
+      <button class="top-btn" disabled title="(reserved)">?</button>
+    </div>
+    <span class="flash" id="flash"></span>
+  </header>
 
-<div class="modal" id="modal"><img id="modalImg"><div class="cap" id="modalCap"></div></div>
+  <!-- left rail -->
+  <nav class="rail" id="rail"></nav>
 
-<script src="/static/js/app.js"></script>
+  <!-- main viewport: one iframe, src swaps -->
+  <div class="viewport">
+    <iframe id="view" src="/welcome" title="panel"></iframe>
+  </div>
+
+</div>
+
+<script>
+  // Each rail item is a descriptor. type drives behaviour:
+  //   nav    -> swap the iframe src
+  //   action -> POST to a backend endpoint, flash status, leave the iframe
+  //   both   -> do the action AND point the iframe at a result
+  // Today everything is 'nav'; flip a type + add src/action to wire a backend later.
+  const PANELS = [
+    { id:"welcome",   label:"Welcome",   type:"nav", src:"/welcome" },
+    { id:"eda",       label:"EDA",       type:"nav", src:"/eda" },
+    { id:"training",  label:"Training",  type:"nav", src:"/train" },
+    { id:"model",     label:"Model",     type:"nav", src:"/model" },
+    { id:"inference", label:"Inference", type:"nav", src:"/infer" },
+  ];
+
+  const view  = document.getElementById("view");
+  const rail  = document.getElementById("rail");
+  const flash = document.getElementById("flash");
+  let active = "welcome";
+
+  function showFlash(msg, kind){
+    flash.textContent = msg || "";
+    flash.className = "flash " + (kind || "");
+    if(msg) setTimeout(()=>{ flash.textContent=""; flash.className="flash"; }, 3500);
+  }
+
+  async function fire(p){
+    if(p.type === "nav" || p.type === "both"){
+      if(p.src){ view.src = p.src; active = p.id; paint(); }
+    }
+    if(p.type === "action" || p.type === "both"){
+      if(p.action){
+        showFlash("running " + p.label + "…", "run");
+        try{
+          const r = await fetch(p.action, { method:"POST" });
+          showFlash(p.label + (r.ok ? " ✓" : " failed"), r.ok ? "ok" : "err");
+        }catch(e){ showFlash(p.label + " failed", "err"); }
+      }
+    }
+  }
+
+  function paint(){
+    rail.innerHTML = PANELS.map(p =>
+      `<button class="rail-btn ${p.id===active?'active':''}" data-id="${p.id}">
+         <span class="rail-dot"></span><span>${p.label}</span>
+       </button>`).join("");
+    rail.querySelectorAll("button").forEach(b =>
+      b.onclick = () => fire(PANELS.find(x => x.id === b.dataset.id)));
+  }
+  paint();
+
+  // logo + title from the same config the panels use
+  fetch("/api/config").then(r=>r.json()).then(c=>{
+    if(c.logo){ const el=document.getElementById("shellLogo"); el.src=c.logo; el.hidden=false; }
+    const DISPLAY={genre:"BEARDOWN · genre recognition",phonon:"phonon · DOS reproduction",atlas:"atlas · Run 3"};
+    document.getElementById("shellTitle").textContent = DISPLAY[c.experiment] || c.experiment || "FORGE";
+  }).catch(()=>{});
+</script>
 </body>
 </html>

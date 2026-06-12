@@ -9,14 +9,14 @@ Three sections (per the BEARDOWN EDA spec):
   (2) TYPE AUDIT         — expected vs actual dtype for every column; NaN/inf;
                            spectrogram image mode/size. Mismatches noted only.
   (3) NERD STATS         — per numeric column: mean/median/mode/std/min/max/IQR,
-                           outlier count + skew; histogram + violin per feature.
+                           outlier count + skew; histogram + box per feature.
 
 Plus: class_balance.png and per-genre mel exemplars (near-free, become hero art).
 
     python eda/run_eda.py --phase before --data-root <path to GTZAN Data dir>
 """
 from __future__ import annotations
-import argparse, os, sys, json, wave, time, contextlib
+import argparse, os, sys, json, math, wave, time, contextlib
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +32,7 @@ from PIL import Image
 def write_json(path: str, obj: dict) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
-        json.dump(obj, f, indent=2)
+        json.dump(obj, f, indent=2, allow_nan=False)
 
 
 GENRES = ["blues", "classical", "country", "disco",
@@ -205,42 +205,76 @@ def _numeric_cols(df: pd.DataFrame) -> list:
             if c not in ("filename", "label") and np.issubdtype(df[c].dtype, np.number)]
 
 
+def _stat_block(x) -> dict:
+    """The 13 descriptive stats for one numeric array (used for combined AND per-genre).
+    Non-finite results (e.g. skew of a zero-variance genre slice) become None so the
+    emitted JSON stays valid."""
+    x = np.asarray(x, dtype=float)
+    x = x[~np.isnan(x)]
+    if x.size == 0:
+        return None
+    q1, q3 = np.percentile(x, [25, 75])
+    iqr = q3 - q1
+    lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+    n_out = int(((x < lo) | (x > hi)).sum())
+    within = x[(x >= lo) & (x <= hi)]
+    whislo = float(within.min()) if within.size else float(x.min())
+    whishi = float(within.max()) if within.size else float(x.max())
+    mode_val = float(sps.mode(np.round(x, 3), keepdims=False).mode)
+    blk = {
+        "count": int(x.size), "mean": float(np.mean(x)),
+        "median": float(np.median(x)), "mode_round3": mode_val,
+        "std": float(np.std(x)), "min": float(np.min(x)), "max": float(np.max(x)),
+        "q1": float(q1), "q3": float(q3), "iqr": float(iqr),
+        "whislo": whislo, "whishi": whishi,
+        "n_outliers_iqr": n_out,
+        "outlier_pct": round(100 * n_out / x.size, 2),
+        "skew": float(sps.skew(x)),
+    }
+    return {k: (None if isinstance(v, float) and not math.isfinite(v) else v)
+            for k, v in blk.items()}
+
+
 def section_nerd_stats(df: pd.DataFrame, fig_dir: Path) -> dict:
-    step("section 3 — descriptive stats + per-feature hist/violin")
+    step("section 3 — descriptive stats + per-feature hist/box")
     cols = _numeric_cols(df)
     out, figures = {}, []
     for i, c in enumerate(cols, 1):
         x = df[c].dropna().to_numpy(dtype=float)
-        q1, q3 = np.percentile(x, [25, 75])
-        iqr = q3 - q1
-        lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-        n_out = int(((x < lo) | (x > hi)).sum())
-        mode_val = float(sps.mode(np.round(x, 3), keepdims=False).mode)
-        out[c] = {
-            "count": int(x.size), "mean": float(np.mean(x)),
-            "median": float(np.median(x)), "mode_round3": mode_val,
-            "std": float(np.std(x)), "min": float(np.min(x)), "max": float(np.max(x)),
-            "q1": float(q1), "q3": float(q3), "iqr": float(iqr),
-            "n_outliers_iqr": n_out,
-            "outlier_pct": round(100 * n_out / x.size, 2),
-            "skew": float(sps.skew(x)),
-        }
-        # per-feature panel: histogram (left) + violin (right)
-        fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 3.2))
+        out[c] = _stat_block(x)
+        # same metrics, split by genre (combined stays above as out[c])
+        pg = {}
+        for g, sub in df.groupby("label"):
+            blk = _stat_block(sub[c].to_numpy(dtype=float))
+            if blk is not None:
+                pg[g] = blk
+        out[c]["per_genre"] = pg
+        # shared bins over the combined range -> per-genre histograms are comparable
+        edges = np.histogram_bin_edges(x, bins=30)
+        hist_pg = {g: np.histogram(sub[c].dropna().to_numpy(dtype=float), bins=edges)[0]
+                      .astype(int).tolist()
+                   for g, sub in df.groupby("label")}
+        out[c]["hist"] = {"edges": [round(float(e), 6) for e in edges], "per_genre": hist_pg}
+        # per-feature panel: histogram (left) + box plot (right)
+        fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 3.2),
+                                     gridspec_kw={"width_ratios": [3, 1]})
         sns.histplot(x, bins=40, kde=True, ax=a1, color="#1FB6C1")
         a1.set_title(f"{c} — histogram"); a1.set_xlabel("")
-        sns.violinplot(y=x, ax=a2, color="#F0A500", inner="quartile")
-        a2.set_title("violin"); a2.set_ylabel("")
+        sns.boxplot(y=x, ax=a2, color="#F0A500", width=0.5,
+                    flierprops={"marker": "o", "markersize": 3,
+                                "markerfacecolor": "#FF6A1A",
+                                "markeredgecolor": "none"})
+        a2.set_title("box"); a2.set_ylabel("")
         fig.tight_layout()
         fn = f"feature_{i:02d}_{c}.png"
         fig.savefig(fig_dir / fn, dpi=90); plt.close(fig)
         figures.append({"file": fn, "kind": "feature_dist", "feature": c,
                         "caption": f"{c}: mean={out[c]['mean']:.3g}, "
                                    f"skew={out[c]['skew']:.2f}, "
-                                   f"outliers={n_out} ({out[c]['outlier_pct']}%)"})
+                                   f"outliers={out[c]['n_outliers_iqr']} ({out[c]['outlier_pct']}%)"})
         if i % 12 == 0:
             step(f"  {i}/{len(cols)} feature panels")
-    return {"per_feature": out, "n_features": len(cols)}, figures
+    return {"per_feature": out, "n_features": len(cols), "genres": list(GENRES)}, figures
 
 
 # ============================================================ EXTRA FIGS
