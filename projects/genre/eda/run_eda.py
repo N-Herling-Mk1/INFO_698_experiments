@@ -235,6 +235,24 @@ def _stat_block(x) -> dict:
             for k, v in blk.items()}
 
 
+def _dist_fig(x, title, path):
+    """Histogram (kde) + box panel — the single source of truth for figure style,
+    used for the combined panel AND every per-genre panel so they match exactly."""
+    x = np.asarray(x, dtype=float); x = x[~np.isnan(x)]
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 3.2),
+                                 gridspec_kw={"width_ratios": [3, 1]})
+    try:
+        sns.histplot(x, bins=40, kde=bool(np.std(x) > 0), ax=a1, color="#1FB6C1")
+    except Exception:
+        sns.histplot(x, bins=40, kde=False, ax=a1, color="#1FB6C1")
+    a1.set_title(title); a1.set_xlabel("")
+    sns.boxplot(y=x, ax=a2, color="#F0A500", width=0.5,
+                flierprops={"marker": "o", "markersize": 3,
+                            "markerfacecolor": "#FF6A1A", "markeredgecolor": "none"})
+    a2.set_title("box"); a2.set_ylabel("")
+    fig.tight_layout(); fig.savefig(path, dpi=88); plt.close(fig)
+
+
 def section_nerd_stats(df: pd.DataFrame, fig_dir: Path) -> dict:
     step("section 3 — descriptive stats + per-feature hist/box")
     cols = _numeric_cols(df)
@@ -255,23 +273,23 @@ def section_nerd_stats(df: pd.DataFrame, fig_dir: Path) -> dict:
                       .astype(int).tolist()
                    for g, sub in df.groupby("label")}
         out[c]["hist"] = {"edges": [round(float(e), 6) for e in edges], "per_genre": hist_pg}
-        # per-feature panel: histogram (left) + box plot (right)
-        fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 3.2),
-                                     gridspec_kw={"width_ratios": [3, 1]})
-        sns.histplot(x, bins=40, kde=True, ax=a1, color="#1FB6C1")
-        a1.set_title(f"{c} — histogram"); a1.set_xlabel("")
-        sns.boxplot(y=x, ax=a2, color="#F0A500", width=0.5,
-                    flierprops={"marker": "o", "markersize": 3,
-                                "markerfacecolor": "#FF6A1A",
-                                "markeredgecolor": "none"})
-        a2.set_title("box"); a2.set_ylabel("")
-        fig.tight_layout()
+        # per-feature panel: combined (unchanged style)
         fn = f"feature_{i:02d}_{c}.png"
-        fig.savefig(fig_dir / fn, dpi=90); plt.close(fig)
+        _dist_fig(x, f"{c} — histogram", fig_dir / fn)
         figures.append({"file": fn, "kind": "feature_dist", "feature": c,
                         "caption": f"{c}: mean={out[c]['mean']:.3g}, "
                                    f"skew={out[c]['skew']:.2f}, "
                                    f"outliers={out[c]['n_outliers_iqr']} ({out[c]['outlier_pct']}%)"})
+        # one panel per genre, identical style
+        gfig = {}
+        for g, sub in df.groupby("label"):
+            xg = sub[c].dropna().to_numpy(dtype=float)
+            if xg.size == 0:
+                continue
+            fn_g = f"feature_{i:02d}_{c}__{g}.png"
+            _dist_fig(xg, f"{c} — {g}", fig_dir / fn_g)
+            gfig[g] = fn_g
+        out[c]["per_genre_fig"] = gfig
         if i % 12 == 0:
             step(f"  {i}/{len(cols)} feature panels")
     return {"per_feature": out, "n_features": len(cols), "genres": list(GENRES)}, figures

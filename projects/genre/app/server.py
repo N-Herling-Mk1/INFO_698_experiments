@@ -89,6 +89,11 @@ def welcome():
     return send_file(APP_DIR / "templates" / "welcome.html")
 
 
+@app.get("/experiment")
+def experiment_page():
+    return send_file(APP_DIR / "templates" / "experiment.html")
+
+
 @app.get("/eda")
 def eda_page():
     return send_file(APP_DIR / "templates" / "eda.html")

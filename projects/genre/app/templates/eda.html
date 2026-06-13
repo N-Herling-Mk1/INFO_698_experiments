@@ -30,6 +30,24 @@
     <section id="overview" class="active">
       <h2>Snapshot</h2>
       <div class="cards" id="cards"></div>
+
+      <h2>Data provenance</h2>
+      <div class="panel prov">
+        <div class="prov-row"><span class="pk">Dataset</span>
+          <span class="pv">GTZAN — music genre classification</span></div>
+        <div class="prov-row"><span class="pk">Source</span>
+          <span class="pv"><a href="https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification" target="_blank" rel="noopener">kaggle.com/andradaolteanu/gtzan-dataset-music-genre-classification</a></span></div>
+        <div class="prov-row"><span class="pk">Composition</span>
+          <span class="pv">1,000 audio clips · 30 s each · 10 genres × 100 (blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock)</span></div>
+        <div class="prov-row"><span class="pk">Topology</span>
+          <span class="pv"><code>genres_original</code> (30 s WAVs) · <code>images_original</code> (color spectrograms) · <code>features_30_sec.csv</code> + <code>features_3_sec.csv</code> (pre-computed audio features)</span></div>
+        <div class="prov-row"><span class="pk">Completeness</span>
+          <span class="pv">~99% complete; rows with empty/unusable features are skipped. Aligning spectrograms with the feature CSVs leaves a ~10% gap, so validation sets are held to ≥90% coverage.</span></div>
+        <div class="prov-row"><span class="pk">Model</span>
+          <span class="pv">B.E.A.R. D.O.W.N. — Bayesian Evaluation of Audio Representations: A Deep Optimized Waveform Network</span></div>
+        <div class="prov-note">Source: INFO 510 Fall 2025 final project report (Group 7).</div>
+      </div>
+
       <h2>Class balance &amp; exemplars</h2>
       <div class="hero" id="hero"></div>
     </section>

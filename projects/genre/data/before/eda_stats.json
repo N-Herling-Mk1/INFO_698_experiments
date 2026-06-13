@@ -2,7 +2,7 @@
   "schema": "eda_stats/1.0",
   "project": "genre",
   "model_target": "beardown",
-  "generated": "2026-06-12 02:00:37",
+  "generated": "2026-06-12 22:48:12",
   "phase": "before",
   "expectations": {
     "sample_rate": 22050,
@@ -1295,6 +1295,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_01_length__blues.png",
+          "classical": "feature_01_length__classical.png",
+          "country": "feature_01_length__country.png",
+          "disco": "feature_01_length__disco.png",
+          "hiphop": "feature_01_length__hiphop.png",
+          "jazz": "feature_01_length__jazz.png",
+          "metal": "feature_01_length__metal.png",
+          "pop": "feature_01_length__pop.png",
+          "reggae": "feature_01_length__reggae.png",
+          "rock": "feature_01_length__rock.png"
         }
       },
       "chroma_stft_mean": {
@@ -1841,6 +1853,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_02_chroma_stft_mean__blues.png",
+          "classical": "feature_02_chroma_stft_mean__classical.png",
+          "country": "feature_02_chroma_stft_mean__country.png",
+          "disco": "feature_02_chroma_stft_mean__disco.png",
+          "hiphop": "feature_02_chroma_stft_mean__hiphop.png",
+          "jazz": "feature_02_chroma_stft_mean__jazz.png",
+          "metal": "feature_02_chroma_stft_mean__metal.png",
+          "pop": "feature_02_chroma_stft_mean__pop.png",
+          "reggae": "feature_02_chroma_stft_mean__reggae.png",
+          "rock": "feature_02_chroma_stft_mean__rock.png"
         }
       },
       "chroma_stft_var": {
@@ -2387,6 +2411,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_03_chroma_stft_var__blues.png",
+          "classical": "feature_03_chroma_stft_var__classical.png",
+          "country": "feature_03_chroma_stft_var__country.png",
+          "disco": "feature_03_chroma_stft_var__disco.png",
+          "hiphop": "feature_03_chroma_stft_var__hiphop.png",
+          "jazz": "feature_03_chroma_stft_var__jazz.png",
+          "metal": "feature_03_chroma_stft_var__metal.png",
+          "pop": "feature_03_chroma_stft_var__pop.png",
+          "reggae": "feature_03_chroma_stft_var__reggae.png",
+          "rock": "feature_03_chroma_stft_var__rock.png"
         }
       },
       "rms_mean": {
@@ -2933,6 +2969,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_04_rms_mean__blues.png",
+          "classical": "feature_04_rms_mean__classical.png",
+          "country": "feature_04_rms_mean__country.png",
+          "disco": "feature_04_rms_mean__disco.png",
+          "hiphop": "feature_04_rms_mean__hiphop.png",
+          "jazz": "feature_04_rms_mean__jazz.png",
+          "metal": "feature_04_rms_mean__metal.png",
+          "pop": "feature_04_rms_mean__pop.png",
+          "reggae": "feature_04_rms_mean__reggae.png",
+          "rock": "feature_04_rms_mean__rock.png"
         }
       },
       "rms_var": {
@@ -3479,6 +3527,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_05_rms_var__blues.png",
+          "classical": "feature_05_rms_var__classical.png",
+          "country": "feature_05_rms_var__country.png",
+          "disco": "feature_05_rms_var__disco.png",
+          "hiphop": "feature_05_rms_var__hiphop.png",
+          "jazz": "feature_05_rms_var__jazz.png",
+          "metal": "feature_05_rms_var__metal.png",
+          "pop": "feature_05_rms_var__pop.png",
+          "reggae": "feature_05_rms_var__reggae.png",
+          "rock": "feature_05_rms_var__rock.png"
         }
       },
       "spectral_centroid_mean": {
@@ -4025,6 +4085,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_06_spectral_centroid_mean__blues.png",
+          "classical": "feature_06_spectral_centroid_mean__classical.png",
+          "country": "feature_06_spectral_centroid_mean__country.png",
+          "disco": "feature_06_spectral_centroid_mean__disco.png",
+          "hiphop": "feature_06_spectral_centroid_mean__hiphop.png",
+          "jazz": "feature_06_spectral_centroid_mean__jazz.png",
+          "metal": "feature_06_spectral_centroid_mean__metal.png",
+          "pop": "feature_06_spectral_centroid_mean__pop.png",
+          "reggae": "feature_06_spectral_centroid_mean__reggae.png",
+          "rock": "feature_06_spectral_centroid_mean__rock.png"
         }
       },
       "spectral_centroid_var": {
@@ -4571,6 +4643,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_07_spectral_centroid_var__blues.png",
+          "classical": "feature_07_spectral_centroid_var__classical.png",
+          "country": "feature_07_spectral_centroid_var__country.png",
+          "disco": "feature_07_spectral_centroid_var__disco.png",
+          "hiphop": "feature_07_spectral_centroid_var__hiphop.png",
+          "jazz": "feature_07_spectral_centroid_var__jazz.png",
+          "metal": "feature_07_spectral_centroid_var__metal.png",
+          "pop": "feature_07_spectral_centroid_var__pop.png",
+          "reggae": "feature_07_spectral_centroid_var__reggae.png",
+          "rock": "feature_07_spectral_centroid_var__rock.png"
         }
       },
       "spectral_bandwidth_mean": {
@@ -5117,6 +5201,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_08_spectral_bandwidth_mean__blues.png",
+          "classical": "feature_08_spectral_bandwidth_mean__classical.png",
+          "country": "feature_08_spectral_bandwidth_mean__country.png",
+          "disco": "feature_08_spectral_bandwidth_mean__disco.png",
+          "hiphop": "feature_08_spectral_bandwidth_mean__hiphop.png",
+          "jazz": "feature_08_spectral_bandwidth_mean__jazz.png",
+          "metal": "feature_08_spectral_bandwidth_mean__metal.png",
+          "pop": "feature_08_spectral_bandwidth_mean__pop.png",
+          "reggae": "feature_08_spectral_bandwidth_mean__reggae.png",
+          "rock": "feature_08_spectral_bandwidth_mean__rock.png"
         }
       },
       "spectral_bandwidth_var": {
@@ -5663,6 +5759,18 @@
               2
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_09_spectral_bandwidth_var__blues.png",
+          "classical": "feature_09_spectral_bandwidth_var__classical.png",
+          "country": "feature_09_spectral_bandwidth_var__country.png",
+          "disco": "feature_09_spectral_bandwidth_var__disco.png",
+          "hiphop": "feature_09_spectral_bandwidth_var__hiphop.png",
+          "jazz": "feature_09_spectral_bandwidth_var__jazz.png",
+          "metal": "feature_09_spectral_bandwidth_var__metal.png",
+          "pop": "feature_09_spectral_bandwidth_var__pop.png",
+          "reggae": "feature_09_spectral_bandwidth_var__reggae.png",
+          "rock": "feature_09_spectral_bandwidth_var__rock.png"
         }
       },
       "rolloff_mean": {
@@ -6209,6 +6317,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_10_rolloff_mean__blues.png",
+          "classical": "feature_10_rolloff_mean__classical.png",
+          "country": "feature_10_rolloff_mean__country.png",
+          "disco": "feature_10_rolloff_mean__disco.png",
+          "hiphop": "feature_10_rolloff_mean__hiphop.png",
+          "jazz": "feature_10_rolloff_mean__jazz.png",
+          "metal": "feature_10_rolloff_mean__metal.png",
+          "pop": "feature_10_rolloff_mean__pop.png",
+          "reggae": "feature_10_rolloff_mean__reggae.png",
+          "rock": "feature_10_rolloff_mean__rock.png"
         }
       },
       "rolloff_var": {
@@ -6755,6 +6875,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_11_rolloff_var__blues.png",
+          "classical": "feature_11_rolloff_var__classical.png",
+          "country": "feature_11_rolloff_var__country.png",
+          "disco": "feature_11_rolloff_var__disco.png",
+          "hiphop": "feature_11_rolloff_var__hiphop.png",
+          "jazz": "feature_11_rolloff_var__jazz.png",
+          "metal": "feature_11_rolloff_var__metal.png",
+          "pop": "feature_11_rolloff_var__pop.png",
+          "reggae": "feature_11_rolloff_var__reggae.png",
+          "rock": "feature_11_rolloff_var__rock.png"
         }
       },
       "zero_crossing_rate_mean": {
@@ -7301,6 +7433,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_12_zero_crossing_rate_mean__blues.png",
+          "classical": "feature_12_zero_crossing_rate_mean__classical.png",
+          "country": "feature_12_zero_crossing_rate_mean__country.png",
+          "disco": "feature_12_zero_crossing_rate_mean__disco.png",
+          "hiphop": "feature_12_zero_crossing_rate_mean__hiphop.png",
+          "jazz": "feature_12_zero_crossing_rate_mean__jazz.png",
+          "metal": "feature_12_zero_crossing_rate_mean__metal.png",
+          "pop": "feature_12_zero_crossing_rate_mean__pop.png",
+          "reggae": "feature_12_zero_crossing_rate_mean__reggae.png",
+          "rock": "feature_12_zero_crossing_rate_mean__rock.png"
         }
       },
       "zero_crossing_rate_var": {
@@ -7847,6 +7991,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_13_zero_crossing_rate_var__blues.png",
+          "classical": "feature_13_zero_crossing_rate_var__classical.png",
+          "country": "feature_13_zero_crossing_rate_var__country.png",
+          "disco": "feature_13_zero_crossing_rate_var__disco.png",
+          "hiphop": "feature_13_zero_crossing_rate_var__hiphop.png",
+          "jazz": "feature_13_zero_crossing_rate_var__jazz.png",
+          "metal": "feature_13_zero_crossing_rate_var__metal.png",
+          "pop": "feature_13_zero_crossing_rate_var__pop.png",
+          "reggae": "feature_13_zero_crossing_rate_var__reggae.png",
+          "rock": "feature_13_zero_crossing_rate_var__rock.png"
         }
       },
       "harmony_mean": {
@@ -8393,6 +8549,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_14_harmony_mean__blues.png",
+          "classical": "feature_14_harmony_mean__classical.png",
+          "country": "feature_14_harmony_mean__country.png",
+          "disco": "feature_14_harmony_mean__disco.png",
+          "hiphop": "feature_14_harmony_mean__hiphop.png",
+          "jazz": "feature_14_harmony_mean__jazz.png",
+          "metal": "feature_14_harmony_mean__metal.png",
+          "pop": "feature_14_harmony_mean__pop.png",
+          "reggae": "feature_14_harmony_mean__reggae.png",
+          "rock": "feature_14_harmony_mean__rock.png"
         }
       },
       "harmony_var": {
@@ -8939,6 +9107,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_15_harmony_var__blues.png",
+          "classical": "feature_15_harmony_var__classical.png",
+          "country": "feature_15_harmony_var__country.png",
+          "disco": "feature_15_harmony_var__disco.png",
+          "hiphop": "feature_15_harmony_var__hiphop.png",
+          "jazz": "feature_15_harmony_var__jazz.png",
+          "metal": "feature_15_harmony_var__metal.png",
+          "pop": "feature_15_harmony_var__pop.png",
+          "reggae": "feature_15_harmony_var__reggae.png",
+          "rock": "feature_15_harmony_var__rock.png"
         }
       },
       "perceptr_mean": {
@@ -9485,6 +9665,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_16_perceptr_mean__blues.png",
+          "classical": "feature_16_perceptr_mean__classical.png",
+          "country": "feature_16_perceptr_mean__country.png",
+          "disco": "feature_16_perceptr_mean__disco.png",
+          "hiphop": "feature_16_perceptr_mean__hiphop.png",
+          "jazz": "feature_16_perceptr_mean__jazz.png",
+          "metal": "feature_16_perceptr_mean__metal.png",
+          "pop": "feature_16_perceptr_mean__pop.png",
+          "reggae": "feature_16_perceptr_mean__reggae.png",
+          "rock": "feature_16_perceptr_mean__rock.png"
         }
       },
       "perceptr_var": {
@@ -10031,6 +10223,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_17_perceptr_var__blues.png",
+          "classical": "feature_17_perceptr_var__classical.png",
+          "country": "feature_17_perceptr_var__country.png",
+          "disco": "feature_17_perceptr_var__disco.png",
+          "hiphop": "feature_17_perceptr_var__hiphop.png",
+          "jazz": "feature_17_perceptr_var__jazz.png",
+          "metal": "feature_17_perceptr_var__metal.png",
+          "pop": "feature_17_perceptr_var__pop.png",
+          "reggae": "feature_17_perceptr_var__reggae.png",
+          "rock": "feature_17_perceptr_var__rock.png"
         }
       },
       "tempo": {
@@ -10577,6 +10781,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_18_tempo__blues.png",
+          "classical": "feature_18_tempo__classical.png",
+          "country": "feature_18_tempo__country.png",
+          "disco": "feature_18_tempo__disco.png",
+          "hiphop": "feature_18_tempo__hiphop.png",
+          "jazz": "feature_18_tempo__jazz.png",
+          "metal": "feature_18_tempo__metal.png",
+          "pop": "feature_18_tempo__pop.png",
+          "reggae": "feature_18_tempo__reggae.png",
+          "rock": "feature_18_tempo__rock.png"
         }
       },
       "mfcc1_mean": {
@@ -11123,6 +11339,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_19_mfcc1_mean__blues.png",
+          "classical": "feature_19_mfcc1_mean__classical.png",
+          "country": "feature_19_mfcc1_mean__country.png",
+          "disco": "feature_19_mfcc1_mean__disco.png",
+          "hiphop": "feature_19_mfcc1_mean__hiphop.png",
+          "jazz": "feature_19_mfcc1_mean__jazz.png",
+          "metal": "feature_19_mfcc1_mean__metal.png",
+          "pop": "feature_19_mfcc1_mean__pop.png",
+          "reggae": "feature_19_mfcc1_mean__reggae.png",
+          "rock": "feature_19_mfcc1_mean__rock.png"
         }
       },
       "mfcc1_var": {
@@ -11669,6 +11897,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_20_mfcc1_var__blues.png",
+          "classical": "feature_20_mfcc1_var__classical.png",
+          "country": "feature_20_mfcc1_var__country.png",
+          "disco": "feature_20_mfcc1_var__disco.png",
+          "hiphop": "feature_20_mfcc1_var__hiphop.png",
+          "jazz": "feature_20_mfcc1_var__jazz.png",
+          "metal": "feature_20_mfcc1_var__metal.png",
+          "pop": "feature_20_mfcc1_var__pop.png",
+          "reggae": "feature_20_mfcc1_var__reggae.png",
+          "rock": "feature_20_mfcc1_var__rock.png"
         }
       },
       "mfcc2_mean": {
@@ -12215,6 +12455,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_21_mfcc2_mean__blues.png",
+          "classical": "feature_21_mfcc2_mean__classical.png",
+          "country": "feature_21_mfcc2_mean__country.png",
+          "disco": "feature_21_mfcc2_mean__disco.png",
+          "hiphop": "feature_21_mfcc2_mean__hiphop.png",
+          "jazz": "feature_21_mfcc2_mean__jazz.png",
+          "metal": "feature_21_mfcc2_mean__metal.png",
+          "pop": "feature_21_mfcc2_mean__pop.png",
+          "reggae": "feature_21_mfcc2_mean__reggae.png",
+          "rock": "feature_21_mfcc2_mean__rock.png"
         }
       },
       "mfcc2_var": {
@@ -12761,6 +13013,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_22_mfcc2_var__blues.png",
+          "classical": "feature_22_mfcc2_var__classical.png",
+          "country": "feature_22_mfcc2_var__country.png",
+          "disco": "feature_22_mfcc2_var__disco.png",
+          "hiphop": "feature_22_mfcc2_var__hiphop.png",
+          "jazz": "feature_22_mfcc2_var__jazz.png",
+          "metal": "feature_22_mfcc2_var__metal.png",
+          "pop": "feature_22_mfcc2_var__pop.png",
+          "reggae": "feature_22_mfcc2_var__reggae.png",
+          "rock": "feature_22_mfcc2_var__rock.png"
         }
       },
       "mfcc3_mean": {
@@ -13307,6 +13571,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_23_mfcc3_mean__blues.png",
+          "classical": "feature_23_mfcc3_mean__classical.png",
+          "country": "feature_23_mfcc3_mean__country.png",
+          "disco": "feature_23_mfcc3_mean__disco.png",
+          "hiphop": "feature_23_mfcc3_mean__hiphop.png",
+          "jazz": "feature_23_mfcc3_mean__jazz.png",
+          "metal": "feature_23_mfcc3_mean__metal.png",
+          "pop": "feature_23_mfcc3_mean__pop.png",
+          "reggae": "feature_23_mfcc3_mean__reggae.png",
+          "rock": "feature_23_mfcc3_mean__rock.png"
         }
       },
       "mfcc3_var": {
@@ -13853,6 +14129,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_24_mfcc3_var__blues.png",
+          "classical": "feature_24_mfcc3_var__classical.png",
+          "country": "feature_24_mfcc3_var__country.png",
+          "disco": "feature_24_mfcc3_var__disco.png",
+          "hiphop": "feature_24_mfcc3_var__hiphop.png",
+          "jazz": "feature_24_mfcc3_var__jazz.png",
+          "metal": "feature_24_mfcc3_var__metal.png",
+          "pop": "feature_24_mfcc3_var__pop.png",
+          "reggae": "feature_24_mfcc3_var__reggae.png",
+          "rock": "feature_24_mfcc3_var__rock.png"
         }
       },
       "mfcc4_mean": {
@@ -14399,6 +14687,18 @@
               1
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_25_mfcc4_mean__blues.png",
+          "classical": "feature_25_mfcc4_mean__classical.png",
+          "country": "feature_25_mfcc4_mean__country.png",
+          "disco": "feature_25_mfcc4_mean__disco.png",
+          "hiphop": "feature_25_mfcc4_mean__hiphop.png",
+          "jazz": "feature_25_mfcc4_mean__jazz.png",
+          "metal": "feature_25_mfcc4_mean__metal.png",
+          "pop": "feature_25_mfcc4_mean__pop.png",
+          "reggae": "feature_25_mfcc4_mean__reggae.png",
+          "rock": "feature_25_mfcc4_mean__rock.png"
         }
       },
       "mfcc4_var": {
@@ -14945,6 +15245,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_26_mfcc4_var__blues.png",
+          "classical": "feature_26_mfcc4_var__classical.png",
+          "country": "feature_26_mfcc4_var__country.png",
+          "disco": "feature_26_mfcc4_var__disco.png",
+          "hiphop": "feature_26_mfcc4_var__hiphop.png",
+          "jazz": "feature_26_mfcc4_var__jazz.png",
+          "metal": "feature_26_mfcc4_var__metal.png",
+          "pop": "feature_26_mfcc4_var__pop.png",
+          "reggae": "feature_26_mfcc4_var__reggae.png",
+          "rock": "feature_26_mfcc4_var__rock.png"
         }
       },
       "mfcc5_mean": {
@@ -15491,6 +15803,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_27_mfcc5_mean__blues.png",
+          "classical": "feature_27_mfcc5_mean__classical.png",
+          "country": "feature_27_mfcc5_mean__country.png",
+          "disco": "feature_27_mfcc5_mean__disco.png",
+          "hiphop": "feature_27_mfcc5_mean__hiphop.png",
+          "jazz": "feature_27_mfcc5_mean__jazz.png",
+          "metal": "feature_27_mfcc5_mean__metal.png",
+          "pop": "feature_27_mfcc5_mean__pop.png",
+          "reggae": "feature_27_mfcc5_mean__reggae.png",
+          "rock": "feature_27_mfcc5_mean__rock.png"
         }
       },
       "mfcc5_var": {
@@ -16037,6 +16361,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_28_mfcc5_var__blues.png",
+          "classical": "feature_28_mfcc5_var__classical.png",
+          "country": "feature_28_mfcc5_var__country.png",
+          "disco": "feature_28_mfcc5_var__disco.png",
+          "hiphop": "feature_28_mfcc5_var__hiphop.png",
+          "jazz": "feature_28_mfcc5_var__jazz.png",
+          "metal": "feature_28_mfcc5_var__metal.png",
+          "pop": "feature_28_mfcc5_var__pop.png",
+          "reggae": "feature_28_mfcc5_var__reggae.png",
+          "rock": "feature_28_mfcc5_var__rock.png"
         }
       },
       "mfcc6_mean": {
@@ -16583,6 +16919,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_29_mfcc6_mean__blues.png",
+          "classical": "feature_29_mfcc6_mean__classical.png",
+          "country": "feature_29_mfcc6_mean__country.png",
+          "disco": "feature_29_mfcc6_mean__disco.png",
+          "hiphop": "feature_29_mfcc6_mean__hiphop.png",
+          "jazz": "feature_29_mfcc6_mean__jazz.png",
+          "metal": "feature_29_mfcc6_mean__metal.png",
+          "pop": "feature_29_mfcc6_mean__pop.png",
+          "reggae": "feature_29_mfcc6_mean__reggae.png",
+          "rock": "feature_29_mfcc6_mean__rock.png"
         }
       },
       "mfcc6_var": {
@@ -17129,6 +17477,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_30_mfcc6_var__blues.png",
+          "classical": "feature_30_mfcc6_var__classical.png",
+          "country": "feature_30_mfcc6_var__country.png",
+          "disco": "feature_30_mfcc6_var__disco.png",
+          "hiphop": "feature_30_mfcc6_var__hiphop.png",
+          "jazz": "feature_30_mfcc6_var__jazz.png",
+          "metal": "feature_30_mfcc6_var__metal.png",
+          "pop": "feature_30_mfcc6_var__pop.png",
+          "reggae": "feature_30_mfcc6_var__reggae.png",
+          "rock": "feature_30_mfcc6_var__rock.png"
         }
       },
       "mfcc7_mean": {
@@ -17675,6 +18035,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_31_mfcc7_mean__blues.png",
+          "classical": "feature_31_mfcc7_mean__classical.png",
+          "country": "feature_31_mfcc7_mean__country.png",
+          "disco": "feature_31_mfcc7_mean__disco.png",
+          "hiphop": "feature_31_mfcc7_mean__hiphop.png",
+          "jazz": "feature_31_mfcc7_mean__jazz.png",
+          "metal": "feature_31_mfcc7_mean__metal.png",
+          "pop": "feature_31_mfcc7_mean__pop.png",
+          "reggae": "feature_31_mfcc7_mean__reggae.png",
+          "rock": "feature_31_mfcc7_mean__rock.png"
         }
       },
       "mfcc7_var": {
@@ -18221,6 +18593,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_32_mfcc7_var__blues.png",
+          "classical": "feature_32_mfcc7_var__classical.png",
+          "country": "feature_32_mfcc7_var__country.png",
+          "disco": "feature_32_mfcc7_var__disco.png",
+          "hiphop": "feature_32_mfcc7_var__hiphop.png",
+          "jazz": "feature_32_mfcc7_var__jazz.png",
+          "metal": "feature_32_mfcc7_var__metal.png",
+          "pop": "feature_32_mfcc7_var__pop.png",
+          "reggae": "feature_32_mfcc7_var__reggae.png",
+          "rock": "feature_32_mfcc7_var__rock.png"
         }
       },
       "mfcc8_mean": {
@@ -18767,6 +19151,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_33_mfcc8_mean__blues.png",
+          "classical": "feature_33_mfcc8_mean__classical.png",
+          "country": "feature_33_mfcc8_mean__country.png",
+          "disco": "feature_33_mfcc8_mean__disco.png",
+          "hiphop": "feature_33_mfcc8_mean__hiphop.png",
+          "jazz": "feature_33_mfcc8_mean__jazz.png",
+          "metal": "feature_33_mfcc8_mean__metal.png",
+          "pop": "feature_33_mfcc8_mean__pop.png",
+          "reggae": "feature_33_mfcc8_mean__reggae.png",
+          "rock": "feature_33_mfcc8_mean__rock.png"
         }
       },
       "mfcc8_var": {
@@ -19313,6 +19709,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_34_mfcc8_var__blues.png",
+          "classical": "feature_34_mfcc8_var__classical.png",
+          "country": "feature_34_mfcc8_var__country.png",
+          "disco": "feature_34_mfcc8_var__disco.png",
+          "hiphop": "feature_34_mfcc8_var__hiphop.png",
+          "jazz": "feature_34_mfcc8_var__jazz.png",
+          "metal": "feature_34_mfcc8_var__metal.png",
+          "pop": "feature_34_mfcc8_var__pop.png",
+          "reggae": "feature_34_mfcc8_var__reggae.png",
+          "rock": "feature_34_mfcc8_var__rock.png"
         }
       },
       "mfcc9_mean": {
@@ -19859,6 +20267,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_35_mfcc9_mean__blues.png",
+          "classical": "feature_35_mfcc9_mean__classical.png",
+          "country": "feature_35_mfcc9_mean__country.png",
+          "disco": "feature_35_mfcc9_mean__disco.png",
+          "hiphop": "feature_35_mfcc9_mean__hiphop.png",
+          "jazz": "feature_35_mfcc9_mean__jazz.png",
+          "metal": "feature_35_mfcc9_mean__metal.png",
+          "pop": "feature_35_mfcc9_mean__pop.png",
+          "reggae": "feature_35_mfcc9_mean__reggae.png",
+          "rock": "feature_35_mfcc9_mean__rock.png"
         }
       },
       "mfcc9_var": {
@@ -20405,6 +20825,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_36_mfcc9_var__blues.png",
+          "classical": "feature_36_mfcc9_var__classical.png",
+          "country": "feature_36_mfcc9_var__country.png",
+          "disco": "feature_36_mfcc9_var__disco.png",
+          "hiphop": "feature_36_mfcc9_var__hiphop.png",
+          "jazz": "feature_36_mfcc9_var__jazz.png",
+          "metal": "feature_36_mfcc9_var__metal.png",
+          "pop": "feature_36_mfcc9_var__pop.png",
+          "reggae": "feature_36_mfcc9_var__reggae.png",
+          "rock": "feature_36_mfcc9_var__rock.png"
         }
       },
       "mfcc10_mean": {
@@ -20951,6 +21383,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_37_mfcc10_mean__blues.png",
+          "classical": "feature_37_mfcc10_mean__classical.png",
+          "country": "feature_37_mfcc10_mean__country.png",
+          "disco": "feature_37_mfcc10_mean__disco.png",
+          "hiphop": "feature_37_mfcc10_mean__hiphop.png",
+          "jazz": "feature_37_mfcc10_mean__jazz.png",
+          "metal": "feature_37_mfcc10_mean__metal.png",
+          "pop": "feature_37_mfcc10_mean__pop.png",
+          "reggae": "feature_37_mfcc10_mean__reggae.png",
+          "rock": "feature_37_mfcc10_mean__rock.png"
         }
       },
       "mfcc10_var": {
@@ -21497,6 +21941,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_38_mfcc10_var__blues.png",
+          "classical": "feature_38_mfcc10_var__classical.png",
+          "country": "feature_38_mfcc10_var__country.png",
+          "disco": "feature_38_mfcc10_var__disco.png",
+          "hiphop": "feature_38_mfcc10_var__hiphop.png",
+          "jazz": "feature_38_mfcc10_var__jazz.png",
+          "metal": "feature_38_mfcc10_var__metal.png",
+          "pop": "feature_38_mfcc10_var__pop.png",
+          "reggae": "feature_38_mfcc10_var__reggae.png",
+          "rock": "feature_38_mfcc10_var__rock.png"
         }
       },
       "mfcc11_mean": {
@@ -22043,6 +22499,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_39_mfcc11_mean__blues.png",
+          "classical": "feature_39_mfcc11_mean__classical.png",
+          "country": "feature_39_mfcc11_mean__country.png",
+          "disco": "feature_39_mfcc11_mean__disco.png",
+          "hiphop": "feature_39_mfcc11_mean__hiphop.png",
+          "jazz": "feature_39_mfcc11_mean__jazz.png",
+          "metal": "feature_39_mfcc11_mean__metal.png",
+          "pop": "feature_39_mfcc11_mean__pop.png",
+          "reggae": "feature_39_mfcc11_mean__reggae.png",
+          "rock": "feature_39_mfcc11_mean__rock.png"
         }
       },
       "mfcc11_var": {
@@ -22589,6 +23057,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_40_mfcc11_var__blues.png",
+          "classical": "feature_40_mfcc11_var__classical.png",
+          "country": "feature_40_mfcc11_var__country.png",
+          "disco": "feature_40_mfcc11_var__disco.png",
+          "hiphop": "feature_40_mfcc11_var__hiphop.png",
+          "jazz": "feature_40_mfcc11_var__jazz.png",
+          "metal": "feature_40_mfcc11_var__metal.png",
+          "pop": "feature_40_mfcc11_var__pop.png",
+          "reggae": "feature_40_mfcc11_var__reggae.png",
+          "rock": "feature_40_mfcc11_var__rock.png"
         }
       },
       "mfcc12_mean": {
@@ -23135,6 +23615,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_41_mfcc12_mean__blues.png",
+          "classical": "feature_41_mfcc12_mean__classical.png",
+          "country": "feature_41_mfcc12_mean__country.png",
+          "disco": "feature_41_mfcc12_mean__disco.png",
+          "hiphop": "feature_41_mfcc12_mean__hiphop.png",
+          "jazz": "feature_41_mfcc12_mean__jazz.png",
+          "metal": "feature_41_mfcc12_mean__metal.png",
+          "pop": "feature_41_mfcc12_mean__pop.png",
+          "reggae": "feature_41_mfcc12_mean__reggae.png",
+          "rock": "feature_41_mfcc12_mean__rock.png"
         }
       },
       "mfcc12_var": {
@@ -23681,6 +24173,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_42_mfcc12_var__blues.png",
+          "classical": "feature_42_mfcc12_var__classical.png",
+          "country": "feature_42_mfcc12_var__country.png",
+          "disco": "feature_42_mfcc12_var__disco.png",
+          "hiphop": "feature_42_mfcc12_var__hiphop.png",
+          "jazz": "feature_42_mfcc12_var__jazz.png",
+          "metal": "feature_42_mfcc12_var__metal.png",
+          "pop": "feature_42_mfcc12_var__pop.png",
+          "reggae": "feature_42_mfcc12_var__reggae.png",
+          "rock": "feature_42_mfcc12_var__rock.png"
         }
       },
       "mfcc13_mean": {
@@ -24227,6 +24731,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_43_mfcc13_mean__blues.png",
+          "classical": "feature_43_mfcc13_mean__classical.png",
+          "country": "feature_43_mfcc13_mean__country.png",
+          "disco": "feature_43_mfcc13_mean__disco.png",
+          "hiphop": "feature_43_mfcc13_mean__hiphop.png",
+          "jazz": "feature_43_mfcc13_mean__jazz.png",
+          "metal": "feature_43_mfcc13_mean__metal.png",
+          "pop": "feature_43_mfcc13_mean__pop.png",
+          "reggae": "feature_43_mfcc13_mean__reggae.png",
+          "rock": "feature_43_mfcc13_mean__rock.png"
         }
       },
       "mfcc13_var": {
@@ -24773,6 +25289,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_44_mfcc13_var__blues.png",
+          "classical": "feature_44_mfcc13_var__classical.png",
+          "country": "feature_44_mfcc13_var__country.png",
+          "disco": "feature_44_mfcc13_var__disco.png",
+          "hiphop": "feature_44_mfcc13_var__hiphop.png",
+          "jazz": "feature_44_mfcc13_var__jazz.png",
+          "metal": "feature_44_mfcc13_var__metal.png",
+          "pop": "feature_44_mfcc13_var__pop.png",
+          "reggae": "feature_44_mfcc13_var__reggae.png",
+          "rock": "feature_44_mfcc13_var__rock.png"
         }
       },
       "mfcc14_mean": {
@@ -25319,6 +25847,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_45_mfcc14_mean__blues.png",
+          "classical": "feature_45_mfcc14_mean__classical.png",
+          "country": "feature_45_mfcc14_mean__country.png",
+          "disco": "feature_45_mfcc14_mean__disco.png",
+          "hiphop": "feature_45_mfcc14_mean__hiphop.png",
+          "jazz": "feature_45_mfcc14_mean__jazz.png",
+          "metal": "feature_45_mfcc14_mean__metal.png",
+          "pop": "feature_45_mfcc14_mean__pop.png",
+          "reggae": "feature_45_mfcc14_mean__reggae.png",
+          "rock": "feature_45_mfcc14_mean__rock.png"
         }
       },
       "mfcc14_var": {
@@ -25865,6 +26405,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_46_mfcc14_var__blues.png",
+          "classical": "feature_46_mfcc14_var__classical.png",
+          "country": "feature_46_mfcc14_var__country.png",
+          "disco": "feature_46_mfcc14_var__disco.png",
+          "hiphop": "feature_46_mfcc14_var__hiphop.png",
+          "jazz": "feature_46_mfcc14_var__jazz.png",
+          "metal": "feature_46_mfcc14_var__metal.png",
+          "pop": "feature_46_mfcc14_var__pop.png",
+          "reggae": "feature_46_mfcc14_var__reggae.png",
+          "rock": "feature_46_mfcc14_var__rock.png"
         }
       },
       "mfcc15_mean": {
@@ -26411,6 +26963,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_47_mfcc15_mean__blues.png",
+          "classical": "feature_47_mfcc15_mean__classical.png",
+          "country": "feature_47_mfcc15_mean__country.png",
+          "disco": "feature_47_mfcc15_mean__disco.png",
+          "hiphop": "feature_47_mfcc15_mean__hiphop.png",
+          "jazz": "feature_47_mfcc15_mean__jazz.png",
+          "metal": "feature_47_mfcc15_mean__metal.png",
+          "pop": "feature_47_mfcc15_mean__pop.png",
+          "reggae": "feature_47_mfcc15_mean__reggae.png",
+          "rock": "feature_47_mfcc15_mean__rock.png"
         }
       },
       "mfcc15_var": {
@@ -26957,6 +27521,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_48_mfcc15_var__blues.png",
+          "classical": "feature_48_mfcc15_var__classical.png",
+          "country": "feature_48_mfcc15_var__country.png",
+          "disco": "feature_48_mfcc15_var__disco.png",
+          "hiphop": "feature_48_mfcc15_var__hiphop.png",
+          "jazz": "feature_48_mfcc15_var__jazz.png",
+          "metal": "feature_48_mfcc15_var__metal.png",
+          "pop": "feature_48_mfcc15_var__pop.png",
+          "reggae": "feature_48_mfcc15_var__reggae.png",
+          "rock": "feature_48_mfcc15_var__rock.png"
         }
       },
       "mfcc16_mean": {
@@ -27503,6 +28079,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_49_mfcc16_mean__blues.png",
+          "classical": "feature_49_mfcc16_mean__classical.png",
+          "country": "feature_49_mfcc16_mean__country.png",
+          "disco": "feature_49_mfcc16_mean__disco.png",
+          "hiphop": "feature_49_mfcc16_mean__hiphop.png",
+          "jazz": "feature_49_mfcc16_mean__jazz.png",
+          "metal": "feature_49_mfcc16_mean__metal.png",
+          "pop": "feature_49_mfcc16_mean__pop.png",
+          "reggae": "feature_49_mfcc16_mean__reggae.png",
+          "rock": "feature_49_mfcc16_mean__rock.png"
         }
       },
       "mfcc16_var": {
@@ -28049,6 +28637,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_50_mfcc16_var__blues.png",
+          "classical": "feature_50_mfcc16_var__classical.png",
+          "country": "feature_50_mfcc16_var__country.png",
+          "disco": "feature_50_mfcc16_var__disco.png",
+          "hiphop": "feature_50_mfcc16_var__hiphop.png",
+          "jazz": "feature_50_mfcc16_var__jazz.png",
+          "metal": "feature_50_mfcc16_var__metal.png",
+          "pop": "feature_50_mfcc16_var__pop.png",
+          "reggae": "feature_50_mfcc16_var__reggae.png",
+          "rock": "feature_50_mfcc16_var__rock.png"
         }
       },
       "mfcc17_mean": {
@@ -28595,6 +29195,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_51_mfcc17_mean__blues.png",
+          "classical": "feature_51_mfcc17_mean__classical.png",
+          "country": "feature_51_mfcc17_mean__country.png",
+          "disco": "feature_51_mfcc17_mean__disco.png",
+          "hiphop": "feature_51_mfcc17_mean__hiphop.png",
+          "jazz": "feature_51_mfcc17_mean__jazz.png",
+          "metal": "feature_51_mfcc17_mean__metal.png",
+          "pop": "feature_51_mfcc17_mean__pop.png",
+          "reggae": "feature_51_mfcc17_mean__reggae.png",
+          "rock": "feature_51_mfcc17_mean__rock.png"
         }
       },
       "mfcc17_var": {
@@ -29141,6 +29753,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_52_mfcc17_var__blues.png",
+          "classical": "feature_52_mfcc17_var__classical.png",
+          "country": "feature_52_mfcc17_var__country.png",
+          "disco": "feature_52_mfcc17_var__disco.png",
+          "hiphop": "feature_52_mfcc17_var__hiphop.png",
+          "jazz": "feature_52_mfcc17_var__jazz.png",
+          "metal": "feature_52_mfcc17_var__metal.png",
+          "pop": "feature_52_mfcc17_var__pop.png",
+          "reggae": "feature_52_mfcc17_var__reggae.png",
+          "rock": "feature_52_mfcc17_var__rock.png"
         }
       },
       "mfcc18_mean": {
@@ -29687,6 +30311,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_53_mfcc18_mean__blues.png",
+          "classical": "feature_53_mfcc18_mean__classical.png",
+          "country": "feature_53_mfcc18_mean__country.png",
+          "disco": "feature_53_mfcc18_mean__disco.png",
+          "hiphop": "feature_53_mfcc18_mean__hiphop.png",
+          "jazz": "feature_53_mfcc18_mean__jazz.png",
+          "metal": "feature_53_mfcc18_mean__metal.png",
+          "pop": "feature_53_mfcc18_mean__pop.png",
+          "reggae": "feature_53_mfcc18_mean__reggae.png",
+          "rock": "feature_53_mfcc18_mean__rock.png"
         }
       },
       "mfcc18_var": {
@@ -30233,6 +30869,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_54_mfcc18_var__blues.png",
+          "classical": "feature_54_mfcc18_var__classical.png",
+          "country": "feature_54_mfcc18_var__country.png",
+          "disco": "feature_54_mfcc18_var__disco.png",
+          "hiphop": "feature_54_mfcc18_var__hiphop.png",
+          "jazz": "feature_54_mfcc18_var__jazz.png",
+          "metal": "feature_54_mfcc18_var__metal.png",
+          "pop": "feature_54_mfcc18_var__pop.png",
+          "reggae": "feature_54_mfcc18_var__reggae.png",
+          "rock": "feature_54_mfcc18_var__rock.png"
         }
       },
       "mfcc19_mean": {
@@ -30779,6 +31427,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_55_mfcc19_mean__blues.png",
+          "classical": "feature_55_mfcc19_mean__classical.png",
+          "country": "feature_55_mfcc19_mean__country.png",
+          "disco": "feature_55_mfcc19_mean__disco.png",
+          "hiphop": "feature_55_mfcc19_mean__hiphop.png",
+          "jazz": "feature_55_mfcc19_mean__jazz.png",
+          "metal": "feature_55_mfcc19_mean__metal.png",
+          "pop": "feature_55_mfcc19_mean__pop.png",
+          "reggae": "feature_55_mfcc19_mean__reggae.png",
+          "rock": "feature_55_mfcc19_mean__rock.png"
         }
       },
       "mfcc19_var": {
@@ -31325,6 +31985,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_56_mfcc19_var__blues.png",
+          "classical": "feature_56_mfcc19_var__classical.png",
+          "country": "feature_56_mfcc19_var__country.png",
+          "disco": "feature_56_mfcc19_var__disco.png",
+          "hiphop": "feature_56_mfcc19_var__hiphop.png",
+          "jazz": "feature_56_mfcc19_var__jazz.png",
+          "metal": "feature_56_mfcc19_var__metal.png",
+          "pop": "feature_56_mfcc19_var__pop.png",
+          "reggae": "feature_56_mfcc19_var__reggae.png",
+          "rock": "feature_56_mfcc19_var__rock.png"
         }
       },
       "mfcc20_mean": {
@@ -31871,6 +32543,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_57_mfcc20_mean__blues.png",
+          "classical": "feature_57_mfcc20_mean__classical.png",
+          "country": "feature_57_mfcc20_mean__country.png",
+          "disco": "feature_57_mfcc20_mean__disco.png",
+          "hiphop": "feature_57_mfcc20_mean__hiphop.png",
+          "jazz": "feature_57_mfcc20_mean__jazz.png",
+          "metal": "feature_57_mfcc20_mean__metal.png",
+          "pop": "feature_57_mfcc20_mean__pop.png",
+          "reggae": "feature_57_mfcc20_mean__reggae.png",
+          "rock": "feature_57_mfcc20_mean__rock.png"
         }
       },
       "mfcc20_var": {
@@ -32417,6 +33101,18 @@
               0
             ]
           }
+        },
+        "per_genre_fig": {
+          "blues": "feature_58_mfcc20_var__blues.png",
+          "classical": "feature_58_mfcc20_var__classical.png",
+          "country": "feature_58_mfcc20_var__country.png",
+          "disco": "feature_58_mfcc20_var__disco.png",
+          "hiphop": "feature_58_mfcc20_var__hiphop.png",
+          "jazz": "feature_58_mfcc20_var__jazz.png",
+          "metal": "feature_58_mfcc20_var__metal.png",
+          "pop": "feature_58_mfcc20_var__pop.png",
+          "reggae": "feature_58_mfcc20_var__reggae.png",
+          "rock": "feature_58_mfcc20_var__rock.png"
         }
       }
     },

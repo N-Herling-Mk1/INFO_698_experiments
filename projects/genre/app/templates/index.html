@@ -22,9 +22,9 @@
     <span class="top-spacer"></span>
     <!-- inert top button slots (functionality TBD) -->
     <div class="top-slots">
-      <button class="top-btn" disabled title="(reserved)">⟳</button>
-      <button class="top-btn" disabled title="(reserved)">⚙</button>
-      <button class="top-btn" disabled title="(reserved)">?</button>
+      <button class="top-btn" title="reserved — refresh">⟳</button>
+      <button class="top-btn" title="reserved — settings">⚙</button>
+      <button class="top-btn" title="reserved — help">?</button>
     </div>
     <span class="flash" id="flash"></span>
   </header>
@@ -35,6 +35,7 @@
   <!-- main viewport: one iframe, src swaps -->
   <div class="viewport">
     <iframe id="view" src="/welcome" title="panel"></iframe>
+    <div class="fyi" id="fyi"></div>
   </div>
 
 </div>
@@ -46,17 +47,30 @@
   //   both   -> do the action AND point the iframe at a result
   // Today everything is 'nav'; flip a type + add src/action to wire a backend later.
   const PANELS = [
-    { id:"welcome",   label:"Welcome",   type:"nav", src:"/welcome" },
-    { id:"eda",       label:"EDA",       type:"nav", src:"/eda" },
-    { id:"training",  label:"Training",  type:"nav", src:"/train" },
-    { id:"model",     label:"Model",     type:"nav", src:"/model" },
-    { id:"inference", label:"Inference", type:"nav", src:"/infer" },
+    { id:"welcome",   label:"Welcome",   type:"nav", src:"/welcome",
+      fyi:"Project landing — overview of BEARDOWN and a live snapshot of the GTZAN dataset." },
+    { id:"experiment",label:"Experiment",type:"nav", src:"/experiment",
+      fyi:"The original experiment — B.E.A.R. D.O.W.N.: the multimodal architecture and the epistemic / reliability metrics it was built to explore." },
+    { id:"eda",       label:"EDA",       type:"nav", src:"/eda",
+      fyi:"Exploratory Data Analysis — integrity checks, type audit, and per-feature / per-genre distributions over the GTZAN features." },
+    { id:"training",  label:"Training",  type:"nav", src:"/train",
+      fyi:"Model training & runs (stub) — will host training configs, run history, and live metrics." },
+    { id:"model",     label:"Model",     type:"nav", src:"/model",
+      fyi:"Architecture & weights (stub) — the TensorFlow + tensorflow-probability Flipout Bayesian head and saved weights." },
+    { id:"inference", label:"Inference", type:"nav", src:"/infer",
+      fyi:"Predict & posterior (stub) — run inference and inspect predictive uncertainty." },
   ];
 
   const view  = document.getElementById("view");
   const rail  = document.getElementById("rail");
   const flash = document.getElementById("flash");
+  const fyiBox = document.getElementById("fyi");
   let active = "welcome";
+
+  function setFYI(p){
+    if(!fyiBox || !p) return;
+    fyiBox.innerHTML = `<span class="fyi-tag">FYI</span><span class="fyi-text">${p.fyi || ""}</span>`;
+  }
 
   function showFlash(msg, kind){
     flash.textContent = msg || "";
@@ -66,7 +80,7 @@
 
   async function fire(p){
     if(p.type === "nav" || p.type === "both"){
-      if(p.src){ view.src = p.src; active = p.id; paint(); }
+      if(p.src){ view.src = p.src; active = p.id; paint(); setFYI(p); }
     }
     if(p.type === "action" || p.type === "both"){
       if(p.action){
@@ -88,6 +102,7 @@
       b.onclick = () => fire(PANELS.find(x => x.id === b.dataset.id)));
   }
   paint();
+  setFYI(PANELS.find(p => p.id === active));
 
   // logo + title from the same config the panels use
   fetch("/api/config").then(r=>r.json()).then(c=>{

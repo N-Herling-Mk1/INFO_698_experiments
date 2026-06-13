@@ -254,11 +254,13 @@ function selectVar(name){
   if ($("#varSelect").value !== name) $("#varSelect").value = name;
   const p = scopeStat(name) || base;     // scoped numbers (combined or one genre)
   const fig = figForFeature(name);        // combined distribution PNG
+  const gfile = DATA.nerd_stats?.per_feature?.[name]?.per_genre_fig?.[GENRE];
   const scopeTag = GENRE
     ? `<span class="scope-tag">${GENRE}</span>`
     : `<span class="scope-tag all">all genres</span>`;
   const figHTML = GENRE
-    ? genreChartSVG(name, GENRE)
+    ? (gfile ? `<img src="${figURL(gfile)}" alt="${name} — ${GENRE}" data-file="${gfile}">`
+             : `<div class="dim">no figure</div>`)
     : (fig ? `<img src="${figURL(fig.file)}" alt="${name}" data-file="${fig.file}">`
            : `<div class="dim">no figure</div>`);
   const stats = [
