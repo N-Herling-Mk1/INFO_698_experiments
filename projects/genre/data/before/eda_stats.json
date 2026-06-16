@@ -1,5 +1,5 @@
 {
-  "schema": "eda_stats/1.0",
+  "schema": "eda_stats/1.1",
   "project": "genre",
   "model_target": "beardown",
   "generated": "2026-06-12 22:48:12",
@@ -203,7 +203,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "length",
@@ -212,7 +213,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "chroma_stft_mean",
@@ -221,7 +223,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "chroma_stft_var",
@@ -230,7 +233,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "rms_mean",
@@ -239,7 +243,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "rms_var",
@@ -248,7 +253,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "spectral_centroid_mean",
@@ -257,7 +263,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "spectral_centroid_var",
@@ -266,7 +273,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "spectral_bandwidth_mean",
@@ -275,7 +283,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "spectral_bandwidth_var",
@@ -284,7 +293,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "rolloff_mean",
@@ -293,7 +303,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "rolloff_var",
@@ -302,7 +313,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "zero_crossing_rate_mean",
@@ -311,7 +323,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "zero_crossing_rate_var",
@@ -320,7 +333,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "harmony_mean",
@@ -329,7 +343,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "harmony_var",
@@ -338,7 +353,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "perceptr_mean",
@@ -347,7 +363,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "perceptr_var",
@@ -356,7 +373,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "tempo",
@@ -365,7 +383,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc1_mean",
@@ -374,7 +393,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc1_var",
@@ -383,7 +403,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc2_mean",
@@ -392,7 +413,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc2_var",
@@ -401,7 +423,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc3_mean",
@@ -410,7 +433,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc3_var",
@@ -419,7 +443,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc4_mean",
@@ -428,7 +453,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc4_var",
@@ -437,7 +463,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc5_mean",
@@ -446,7 +473,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc5_var",
@@ -455,7 +483,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc6_mean",
@@ -464,7 +493,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc6_var",
@@ -473,7 +503,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc7_mean",
@@ -482,7 +513,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc7_var",
@@ -491,7 +523,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc8_mean",
@@ -500,7 +533,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc8_var",
@@ -509,7 +543,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc9_mean",
@@ -518,7 +553,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc9_var",
@@ -527,7 +563,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc10_mean",
@@ -536,7 +573,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc10_var",
@@ -545,7 +583,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc11_mean",
@@ -554,7 +593,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc11_var",
@@ -563,7 +603,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc12_mean",
@@ -572,7 +613,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc12_var",
@@ -581,7 +623,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc13_mean",
@@ -590,7 +633,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc13_var",
@@ -599,7 +643,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc14_mean",
@@ -608,7 +653,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc14_var",
@@ -617,7 +663,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc15_mean",
@@ -626,7 +673,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc15_var",
@@ -635,7 +683,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc16_mean",
@@ -644,7 +693,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc16_var",
@@ -653,7 +703,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc17_mean",
@@ -662,7 +713,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc17_var",
@@ -671,7 +723,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc18_mean",
@@ -680,7 +733,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc18_var",
@@ -689,7 +743,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc19_mean",
@@ -698,7 +753,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc19_var",
@@ -707,7 +763,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc20_mean",
@@ -716,7 +773,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "mfcc20_var",
@@ -725,7 +783,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       },
       {
         "column": "label",
@@ -734,7 +793,8 @@
         "match": true,
         "n_nan": 0,
         "n_inf": 0,
-        "note": ""
+        "note": "",
+        "n": 1000
       }
     ],
     "n_mismatch_or_note": 0,
@@ -746,8 +806,10 @@
       "observed_sizes": {
         "(128, 128)": 50
       },
-      "unreadable": []
-    }
+      "unreadable": [],
+      "n_examined": 50
+    },
+    "n_rows": 1000
   },
   "nerd_stats": {
     "per_feature": {
@@ -33494,5 +33556,18 @@
       "kind": "exemplars_color",
       "caption": "The same per-genre exemplars false-colored (cmap=magma) for readability."
     }
-  ]
+  ],
+  "summary": {
+    "n_rows": 1000,
+    "n_columns": 60,
+    "n_features": 58,
+    "all_present": true,
+    "all_types_pass": true,
+    "n_types_pass": 60,
+    "n_types_fail": 0,
+    "total_nan": 0,
+    "total_inf": 0,
+    "representation_gaps": 12,
+    "narrative": "The feature table holds 1,000 rows across 60 columns (58 numeric features). Type audit: 60/60 columns match their expected dtype, with nothing flagged. No missing, NaN, or non-finite values appear in any examined column. At the file level there are 1 unreadable audio clip, 1 missing representation file, 10 off-duration clips (~1.2% of clips), all catalogued under Integrity. Overall the dataset is well-behaved \u2014 the feature table is complete and correctly typed, with only minor, documented file-level gaps."
+  }
 }

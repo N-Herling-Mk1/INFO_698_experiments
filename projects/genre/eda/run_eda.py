@@ -28,6 +28,9 @@ import seaborn as sns
 from scipy import stats as sps
 from PIL import Image
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+from _shared.eda import build_summary
+
 
 def write_json(path: str, obj: dict) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -177,7 +180,7 @@ def section_type_audit(df: pd.DataFrame, data_root: Path) -> dict:
         if expected == "categorical(10)" and s.nunique() != 10:
             note = f"{s.nunique()} distinct labels (expected 10)"
         audit.append({"column": col, "expected": expected, "actual_dtype": actual,
-                      "match": bool(match), "n_nan": n_nan, "n_inf": n_inf,
+                      "match": bool(match), "n": int(len(s)), "n_nan": n_nan, "n_inf": n_inf,
                       "note": note})
 
     mism = [a["column"] for a in audit if not a["match"] or a["note"]]
@@ -195,8 +198,10 @@ def section_type_audit(df: pd.DataFrame, data_root: Path) -> dict:
             except Exception as e:
                 bad_imgs.append({"file": str(p), "error": type(e).__name__})
     img_audit = {"expected_mode": EXPECT["img_mode"], "observed_modes": img_modes,
-                 "observed_sizes": img_sizes, "unreadable": bad_imgs}
-    return {"columns": audit, "n_mismatch_or_note": len(mism), "spectrograms": img_audit}
+                 "observed_sizes": img_sizes, "n_examined": int(sum(img_modes.values())),
+                 "unreadable": bad_imgs}
+    return {"columns": audit, "n_rows": int(len(df)),
+            "n_mismatch_or_note": len(mism), "spectrograms": img_audit}
 
 
 # ============================================================ (3) NERD STATS
@@ -390,7 +395,7 @@ def main():
     figures += fig_mel_exemplars(data_root, fig_dir)
 
     stats = {
-        "schema": "eda_stats/1.0",
+        "schema": "eda_stats/1.1",
         "project": "genre", "model_target": "beardown",
         "generated": time.strftime("%Y-%m-%d %H:%M:%S"),
         "phase": args.phase,
@@ -400,6 +405,7 @@ def main():
         "nerd_stats": nerd,
         "figures": figures,
     }
+    stats["summary"] = build_summary(stats)   # headline flags + narrative
     out_stats = here.parent / "data" / args.phase / "eda_stats.json"
     write_json(str(out_stats), stats)
     step(f"wrote {out_stats}  ({len(figures)} figures in {fig_dir})")

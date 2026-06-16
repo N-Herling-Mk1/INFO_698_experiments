@@ -1,6 +1,5 @@
 # raw data + run artifacts never committed (genealogy travels via manifest.json)
 **/data/raw/
-**/data/fixed/
 **/data/interim/
 **/runs/
 # build outputs

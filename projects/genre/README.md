@@ -1,46 +1,79 @@
-# `genre/` — GTZAN music-genre recognition (week 2)
+# `data/` — GTZAN data area & genealogy
 
-The first reproduction. Two models on one dataset (GTZAN), each scored against its
-source's reported number.
+This folder is the **genealogy source of truth** for the genre project. The website's
+"project genealogy" panel is built from `manifest.json` emitted here — so the data area
+isn't just storage, it's documentation that stays in sync with reality.
 
-## Dataset: GTZAN
-- 1000 clips, 10 genres × 100, 22050 Hz mono, ~30 s each.
-- Tzanetakis & Cook, *Musical Genre Classification of Audio Signals*, IEEE TSAP 2002.
-- Three usable representations: raw audio, the 58-feature tabular CSV (30 s **and**
-  3 s segments), and Mel-spectrogram images.
-- Known issues to document (not ignore): one corrupt file (`jazz.00054`), plus the
-  Sturm (2013) critique — exact duplicates, mislabelings, artist repetition.
-
-Full provenance + integrity work lives in [`data/README.md`](data/README.md) and the
-emitted [`eda/`](eda/README.md) artifacts.
-
-## The two reproductions
-
-| Config | Model | Source | Target metric | Status |
-|--------|-------|--------|---------------|--------|
-| `configs/beardown.yaml` | BEARDOWN | _TBD — link repo / = INFO 510 classifier_ | _TBD_ | stub |
-| `configs/transformer.yaml` | transformer / attention | _TBD — EAViT / improved-ViT / attention-CNN_ | _paper accuracy_ | stub |
-
-Both share GTZAN ingestion, the track-level split, EDA, the trainer, and the profiler.
-They differ only in `features:` and `model:` keys — that's the whole point of the
-config+registry pattern.
-
-## Open decisions wired into this folder
-
-1. **BEARDOWN identity** → sets `configs/beardown.yaml: model` + `features` + the
-   `eval` target. Until confirmed, `src/models/beardown.py` is a stub.
-2. **Transformer paper** → the choice changes the feature tier:
-   - EAViT (arXiv 2408.13201): 3-second segmentation, mel input.
-   - improved-ViT (PLOS One, 86.8%): mel + channel attention.
-   - attention-CNN (arXiv 2411.14474): spectrogram-sequence tokens + MHA.
-   Set `configs/transformer.yaml: features` accordingly.
-3. **Split policy** → `configs/*.yaml: split.mode` ∈ {`naive_random`, `track`,
-   `artist`}. Plan: run `naive_random` (matches most papers) **and** `track` (honest),
-   report the gap. The leakage rationale is in `eda/README.md`.
-
-## Run order
-```bash
-python eda/run_eda.py                                   # integrity + leakage audit first
-python src/train.py --config configs/beardown.yaml      # then each reproduction
-python src/eval.py  --run runs/beardown/<ts>/
+## Layout
 ```
+data/
+├── README.md          ← you are here
+├── raw/               # original GTZAN, copied from INFO_510 — GITIGNORED (~1.2 GB)
+├── fixed/             # raw + repairs (built, reproducible) — GITIGNORED
+├── interim/           # scratch caches (mel-spectrograms / feature tables) — GITIGNORED
+├── before/            # pre-fix EDA snapshot   — COMMITTED (eda_stats.json + figures)
+├── after/             # post-fix EDA snapshot  — COMMITTED (once it exists)
+└── manifest.json      # EMITTED genealogy: source, license, checksums, counts, splits
+```
+
+## The two data stages — and how they map to EDA phases
+| dir       | what it is                                   | feeds                                   |
+| --------- | -------------------------------------------- | --------------------------------------- |
+| `raw/`    | GTZAN exactly as shipped (warts included)    | `run_eda.py --phase before --data-root data/raw`   |
+| `fixed/`  | `raw/` + the documented repairs (below)      | `run_eda.py --phase after  --data-root data/fixed` |
+
+Principle: **commit the recipe, not the bytes.** Both `raw/` and `fixed/` are gitignored.
+`fixed/` is regenerated deterministically from `raw/` by the build step, so the repo
+stays small — the genealogy (what changed, and the hashes) travels in `manifest.json`.
+
+## Stage 1 — get the original data in (`raw/`)
+The bytes live in the upstream experiment repo. Clone it next to this one, then mirror
+the GTZAN `Data/` dir into `raw/`:
+```bash
+# from INFO_698_experiments/ root, with INFO_510 cloned as a sibling:
+SRC=../INFO_510_Fa25_Final_Proj/_data/gtzan_kaggle/Data
+DST=projects/genre/data/raw
+mkdir -p "$DST"
+rsync -a --info=progress2 \
+  --exclude '*.ods' \
+  "$SRC"/ "$DST"/
+```
+This lands `genres_original/`, `images_original/`, `images_grey_scale/`,
+`features_30_sec.csv`, and `features_3_sec.csv` under `raw/` — exactly the shape
+`run_eda.py` expects. (`.ods` is a LibreOffice dup of the 30s CSV; skipped.)
+
+Sanity-check the copy:
+```bash
+find projects/genre/data/raw/genres_original  -name '*.wav' | wc -l   # 1000
+find projects/genre/data/raw/images_grey_scale -name '*.png' | wc -l  #  999  (jazz short 1)
+```
+
+## Stage 2 — build `fixed/` (the repairs)  ← NEXT
+`fixed/` is `raw/` with three documented defects addressed (a `build_fixed.py` will own
+this, writing each step into `manifest.json` so the change is auditable):
+1. **Corrupt `jazz.00054.wav`** — replace with a valid clip / re-extracted 30 s.
+2. **Missing jazz spectrogram** — regenerate the absent mel PNG so all three
+   representations reconcile at 1000.
+3. **3-sec table gaps** — reconcile `features_3_sec.csv` (the 10 structurally short /
+   off-duration tracks surfaced by EDA) so segment counts are uniform.
+
+Then: `python eda/run_eda.py --phase after --data-root projects/genre/data/fixed`
+emits `after/eda_stats.json`, and the dashboard's before/after toggle diffs the cleanup.
+
+## What `manifest.json` captures (genealogy)
+- `source`: URL + Tzanetakis & Cook 2002 citation
+- `license`: GTZAN usage terms
+- `n_files`, `genres`, per-class counts (expect 100 each)
+- `sample_rate` (22050), `channels` (mono), `bit_depth`
+- `known_issues`: `["jazz.00054 corrupt", "Sturm 2013: duplicates/mislabels/artist-repeat"]`
+- `repairs`: (fixed stage) per-defect record of what was changed + new hashes
+- `split`: `{ mode, seed, train/val/test sizes }` — recorded so a run is reproducible
+- `checksums`: per-file or per-archive hashes → detects silent data drift
+
+`manifest.json` is regenerated by the data adapter; the EDA step reads it. Treat it as
+generated, not hand-edited.
+
+## Why genealogy matters here specifically
+Reproduction numbers are only meaningful relative to *which* GTZAN and *which* split.
+Two papers reporting "GTZAN accuracy" may not be comparable. The manifest pins down
+exactly what we ran on, so our scorecard ("ours vs paper") is honest.

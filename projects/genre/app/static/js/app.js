@@ -56,7 +56,23 @@ function fail(msg){
 function render(){
   const pb = $("#phaseBadge"); if (pb) pb.textContent = DATA.phase || PHASE;
   $("#gen").textContent = DATA.generated ? "generated " + DATA.generated : "";
-  renderCards(); renderHero(); renderIntegrity(); renderTypes(); renderFeatures();
+  renderSummary(); renderCards(); renderHero(); renderIntegrity(); renderTypes(); renderFeatures();
+}
+
+function renderSummary(){
+  const box = $("#edaSummary"); if(!box) return;
+  const s = DATA.summary;
+  if(!s){ box.innerHTML = ""; return; }
+  const flag = (ok,label)=>`<span class="sflag ${ok?'ok':'no'}">${ok?'✓':'✕'} ${label}</span>`;
+  const n = (s.n_rows != null) ? Number(s.n_rows).toLocaleString() : "—";
+  box.innerHTML = `
+    <div class="sum-head">
+      <span class="sum-tag">data health</span>
+      ${flag(s.all_present,    "all present · no NaN")}
+      ${flag(s.all_types_pass, "all types pass")}
+      <span class="sum-n">n = ${n} rows${s.n_features ? " · " + s.n_features + " features" : ""}</span>
+    </div>
+    <p class="sum-text">${s.narrative || ""}</p>`;
 }
 
 function renderCards(){
@@ -117,12 +133,14 @@ function renderTypes(){
   const cols = DATA.type_audit?.columns || [];
   const rows = cols.map(a=>`<tr>
       <td>${a.column}</td><td class="dim">${a.expected}</td><td>${a.actual_dtype}</td>
+      <td>${a.n ?? "—"}</td>
       <td>${a.match ? '<span class="pill ok">match</span>' : '<span class="pill no">check</span>'}</td>
       <td class="dim">${a.note||""}</td></tr>`).join("");
-  let html = `<tr><th>column</th><th>expected</th><th>actual</th><th>type</th><th>note</th></tr>${rows}`;
+  let html = `<tr><th>column</th><th>expected</th><th>actual</th><th>n</th><th>match</th><th>note</th></tr>${rows}`;
   const sp = DATA.type_audit?.spectrograms;
   if(sp){
-    html += `<tr><td colspan="5" class="dim">spectrograms · modes ${JSON.stringify(sp.observed_modes)} · sizes ${
+    const nseen = sp.n_examined ?? Object.values(sp.observed_modes||{}).reduce((a,b)=>a+b,0);
+    html += `<tr><td colspan="6" class="dim">spectrograms · n ${nseen} · modes ${JSON.stringify(sp.observed_modes)} · sizes ${
       JSON.stringify(sp.observed_sizes)} · unreadable ${(sp.unreadable||[]).length}</td></tr>`;
   }
   $("#typeTable").innerHTML = html;
