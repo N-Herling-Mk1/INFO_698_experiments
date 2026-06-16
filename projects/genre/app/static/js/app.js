@@ -76,10 +76,21 @@ function renderCards(){
 function renderHero(){
   const figs = DATA.figures || [];
   const pick = k => figs.find(f=>f.kind===k);
-  const heroes = [pick("class_balance"), pick("exemplars")].filter(Boolean);
-  $("#hero").innerHTML = heroes.map(f=>
-    `<div class="imgwrap"><img src="${figURL(f.file)}" alt="${f.kind}"></div>`).join("")
-    || `<div class="dim">no hero figures emitted</div>`;
+  // class balance spans the row; grey + colored spectrograms sit side by side below it
+  const balance = pick("class_balance");
+  const grey = pick("exemplars_grey");
+  const color = pick("exemplars_color") || pick("exemplars");  // back-compat
+  let html = "";
+  if (balance) html += `<div class="imgwrap hero-wide">
+      <img src="${figURL(balance.file)}" alt="class balance">
+      ${balance.caption ? `<div class="hero-cap">${balance.caption}</div>` : ""}</div>`;
+  for (const [f,tag] of [[grey,"grey-scale"],[color,"colored (magma)"]]){
+    if(!f) continue;
+    html += `<div class="imgwrap"><div class="hero-tag">${tag}</div>
+        <img src="${figURL(f.file)}" alt="${f.kind}">
+        ${f.caption ? `<div class="hero-cap">${f.caption}</div>` : ""}</div>`;
+  }
+  $("#hero").innerHTML = html || `<div class="dim">no hero figures emitted</div>`;
 }
 
 function renderIntegrity(){

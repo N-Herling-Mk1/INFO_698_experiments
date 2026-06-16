@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDA · BEARDOWN</title>
+<link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="eda-page">
+
+  <div class="eda-bar">
+    <span class="eda-tag"><span class="dot"></span> Exploratory Data Analysis</span>
+    <span class="spacer"></span>
+    <div class="phase-toggle" id="phaseToggle"></div>
+    <span class="badge" id="phaseBadge">—</span>
+    <span class="gen" id="gen"></span>
+  </div>
+
+  <nav>
+    <button class="active" data-tab="overview">Overview</button>
+    <button data-tab="integrity">Integrity</button>
+    <button data-tab="types">Types</button>
+    <button data-tab="figures">Distributions</button>
+  </nav>
+
+  <main>
+    <section id="overview" class="active">
+      <h2>Snapshot</h2>
+      <div class="cards" id="cards"></div>
+
+      <h2>Data provenance</h2>
+      <div class="panel prov">
+        <div class="prov-row"><span class="pk">Dataset</span>
+          <span class="pv">GTZAN — music genre classification</span></div>
+        <div class="prov-row"><span class="pk">Source</span>
+          <span class="pv"><a href="https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification" target="_blank" rel="noopener">kaggle.com/andradaolteanu/gtzan-dataset-music-genre-classification</a></span></div>
+        <div class="prov-row"><span class="pk">Composition</span>
+          <span class="pv">1,000 audio clips · 30 s each · 10 genres × 100 (blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock)</span></div>
+        <div class="prov-row"><span class="pk">Topology</span>
+          <span class="pv"><code>genres_original</code> (30 s WAVs) · <code>images_original</code> (spectrogram PNGs, shown below in both grey-scale and false-color) · <code>features_30_sec.csv</code> (one row per clip) + <code>features_3_sec.csv</code> (each clip split into ten 3 s segments)</span></div>
+        <div class="prov-row"><span class="pk">Two feature tiers → two models</span>
+          <span class="pv">The 30 s and 3 s CSVs are kept as separate tiers and feed <b>two models</b>: a <b>30 s model</b> (1,000 rows, one vector per clip) and a <b>3 s model</b> (~10,000 segment rows, more data, finer temporal resolution). EDA runs over both; figures below are the 30 s tier unless noted.</span></div>
+        <div class="prov-row"><span class="pk">Integrity (this snapshot)</span>
+          <span class="pv">Pre-fix. Known: <b>jazz.00054</b> unreadable / missing from the grey-spectrogram set (so jazz grey = 99, not 100); <b>9 hiphop clips</b> off-duration (≈30.65 s vs 30 s); <b>11 tracks</b> with only 9 of 10 expected 3 s segments. See the <b>Integrity</b> tab for the full reconciliation.</span></div>
+        <div class="prov-row"><span class="pk">Remediation (planned)</span>
+          <span class="pv">These are <b>not yet applied</b> — this is the <span class="scope-tag all">before</span> phase. Next pass: restore or formally drop jazz.00054 so every representation aligns at 100/genre, trim/flag the off-duration hiphop clips, and reconcile the short 3 s tracks. Re-running EDA writes an <span class="scope-tag">after</span> snapshot; expect these numbers and the class-balance chart to shift. Counts and tweaks here are provisional.</span></div>
+        <div class="prov-row"><span class="pk">Model</span>
+          <span class="pv">B.E.A.R. D.O.W.N. — Bayesian Evaluation of Audio Representations: A Deep Optimized Waveform Network</span></div>
+        <div class="prov-note">Source: INFO 510 Fall 2025 final project report (Group 7). Snapshot is pre-remediation; figures and counts will be refreshed on the next EDA pass.</div>
+      </div>
+
+      <h2>Class balance &amp; exemplars</h2>
+      <p class="hero-lead">Counts start <b>slightly uneven</b> — the grey-spectrogram set is missing jazz.00054, so it sits at 99 while the wav set holds 100. Once remediation aligns the representations this evens out, and each tier (3 s / 30 s) is balanced independently before training. Spectrograms are shown in both <b>grey-scale</b> (raw representation) and <b>false-color</b> (magma, for readability).</p>
+      <div class="hero" id="hero"></div>
+
+      <h2>Feature dictionary</h2>
+      <p class="hero-lead">The tabular tier is the standard GTZAN <b>58-feature</b> vector: <code>length</code> + 28 audio descriptors, each summarised by its <b>mean</b> and <b>variance</b> across the clip. The full per-feature distributions, stats, and per-genre splits live in the <b>Distributions</b> tab — this dictionary defines what each one measures.</p>
+      <div class="feat-dict">
+        <div class="fd-head"><span>feature</span><span>what it measures</span><span>columns</span></div>
+        <div class="fd-row"><span class="fd-name">length</span>
+          <span class="fd-desc">Number of audio samples in the clip — a fixed-rate proxy for <b>duration</b>. Constant for clean 30 s files; deviations flag the off-duration clips noted above.</span>
+          <span class="fd-count">1</span></div>
+        <div class="fd-row"><span class="fd-name">chroma_stft <span class="agg">·mean/var</span></span>
+          <span class="fd-desc"><b>Chromagram</b> from the short-time Fourier transform — energy folded into the 12 pitch classes. Captures <b>harmony / key</b> content independent of octave.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">rms <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">Root-mean-square energy per frame — overall <b>loudness / dynamics</b>. Variance separates steady tracks from ones with big swells and drops.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">spectral_centroid <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">The spectrum's "center of mass" — perceived <b>brightness</b>. Higher for bright/treble-heavy genres, lower for bass-dominant ones.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">spectral_bandwidth <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">Spread of energy around the centroid — how <b>wide vs. focused</b> the spectrum is at each frame.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">rolloff <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">The frequency below which a set fraction (~85%) of spectral energy lies — a <b>skew/edge</b> descriptor of the spectral shape.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">zero_crossing_rate <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">How often the waveform crosses zero — tracks <b>noisiness / percussiveness</b>; high for distorted or unpitched sounds, low for smooth tones.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">harmony <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">Energy of the <b>harmonic</b> (pitched, tonal) component after harmonic–percussive separation.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">perceptr <span class="agg">·mean/var</span></span>
+          <span class="fd-desc">"Perceptr" = the <b>percussive</b> component — transient, rhythmic energy, the complement to <code>harmony</code>.</span>
+          <span class="fd-count">2</span></div>
+        <div class="fd-row"><span class="fd-name">tempo</span>
+          <span class="fd-desc">Estimated <b>beats per minute</b> from onset/autocorrelation. A single global value per clip.</span>
+          <span class="fd-count">1</span></div>
+        <div class="fd-row"><span class="fd-name">mfcc1 … mfcc20 <span class="agg">·mean/var</span></span>
+          <span class="fd-desc"><b>Mel-frequency cepstral coefficients</b> — a compact description of the spectral envelope (<b>timbre</b>). Low orders track gross shape; higher orders capture fine detail. The dominant block of the vector (40 of 58 columns).</span>
+          <span class="fd-count">40</span></div>
+      </div>
+      <div class="fd-note">All descriptors except <code>length</code> and <code>tempo</code> appear as a mean/variance pair (28 × 2 = 56) → 56 + length + tempo = <b>58 features</b>. The 3 s tier computes the same 58 over each 3-second segment.</div>
+    </section>
+
+    <section id="integrity">
+      <h2>Missing / corrupt</h2>
+      <div class="panel" id="integrityPanel"></div>
+    </section>
+
+    <section id="types">
+      <h2>Type audit — expected vs actual</h2>
+      <div class="panel"><table id="typeTable"></table></div>
+    </section>
+
+    <section id="figures">
+      <h2>Numeric feature statistics</h2>
+      <div class="scope-bar">
+        <span class="scope-label">scope</span>
+        <select id="genreSelect"></select>
+        <span class="dim">combined, or a single genre</span>
+      </div>
+      <div class="cards" id="featStats"></div>
+
+      <h2>Inspect a variable</h2>
+      <div class="var-toggle">
+        <select id="varSelect"></select>
+        <span class="dim" id="varHint">pick a feature, or click a row below</span>
+      </div>
+      <div class="var-detail" id="varDetail"></div>
+      <div class="per-genre" id="perGenre"></div>
+
+      <h2>All features</h2>
+      <div class="toolbar">
+        <input id="search" placeholder="filter features…  (e.g. mfcc, tempo, rms)">
+        <span class="count" id="figCount"></span>
+      </div>
+      <div class="table-wrap"><table id="featTable"></table></div>
+    </section>
+  </main>
+
+  <div class="modal" id="modal"><img id="modalImg"><div class="cap" id="modalCap"></div></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

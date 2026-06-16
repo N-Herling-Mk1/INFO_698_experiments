@@ -296,31 +296,71 @@ def section_nerd_stats(df: pd.DataFrame, fig_dir: Path) -> dict:
 
 
 # ============================================================ EXTRA FIGS
-def fig_class_balance(df: pd.DataFrame, fig_dir: Path) -> dict:
-    counts = df["label"].value_counts().reindex(GENRES)
-    fig, ax = plt.subplots(figsize=(8, 3.2))
-    sns.barplot(x=counts.index, y=counts.values, ax=ax, color="#1FB6C1")
-    ax.axhline(EXPECT["per_class"], ls="--", color="#F0A500", lw=1)
-    ax.set_title("Class balance (feature rows per genre)"); ax.set_ylabel("rows")
-    plt.xticks(rotation=30); fig.tight_layout()
-    fig.savefig(fig_dir / "class_balance.png", dpi=100); plt.close(fig)
+def fig_class_balance(df: pd.DataFrame, counts: dict, fig_dir: Path) -> dict:
+    """Per-genre counts for BOTH representations (wav vs grey spectrogram), so the
+    pre-fix imbalance (a missing grey exemplar drops a genre below 100) is visible."""
+    wav = [counts["wav_per_class"].get(g, 0) for g in GENRES]
+    grey = [counts["grey_per_class"].get(g, 0) for g in GENRES]
+    plt.rcParams.update({"axes.edgecolor": "#1c2a3a", "text.color": "#cfe6ea",
+                         "axes.labelcolor": "#cfe6ea",
+                         "xtick.color": "#6f8693", "ytick.color": "#6f8693"})
+    fig, ax = plt.subplots(figsize=(9, 3.4))
+    fig.patch.set_facecolor("#0a0f16"); ax.set_facecolor("#0a0f16")
+    x = np.arange(len(GENRES)); w = 0.4
+    ax.bar(x - w/2, wav, w, label="wav (genres_original)", color="#1FB6C1")
+    ax.bar(x + w/2, grey, w, label="grey spectrogram (images)", color="#F0A500")
+    ax.axhline(EXPECT["per_class"], ls="--", lw=1, color="#FF6A1A", alpha=.8)
+    ax.set_xticks(x); ax.set_xticklabels(GENRES, rotation=30, ha="right")
+    lo = min(min(wav), min(grey)); ax.set_ylim(max(0, lo - 5), EXPECT["per_class"] + 1.3)
+    ax.set_ylabel("files per genre")
+    ax.set_title("Per-genre file counts by representation (dashed = expected 100)", fontsize=11)
+    # annotate the first genre that is short in the grey set (pre-fix gap)
+    for i, g in enumerate(GENRES):
+        if grey[i] < EXPECT["per_class"]:
+            ax.annotate(f"{g} grey = {grey[i]}", xy=(i + w/2, grey[i]),
+                        xytext=(i - 0.3, max(0, lo - 4.4)), color="#FF6A1A",
+                        fontsize=8.5, ha="left",
+                        arrowprops=dict(arrowstyle="->", color="#FF6A1A", lw=1.2))
+            break
+    ax.legend(facecolor="#0d131c", edgecolor="#1c2a3a", labelcolor="#cfe6ea",
+              fontsize=8, loc="upper right", ncol=2, framealpha=.9)
+    for s in ("top", "right"): ax.spines[s].set_visible(False)
+    fig.tight_layout(); fig.savefig(fig_dir / "class_balance.png", dpi=100,
+                                    facecolor=fig.get_facecolor()); plt.close(fig)
     return {"file": "class_balance.png", "kind": "class_balance",
-            "caption": "Rows per genre in features_30_sec.csv (dashed = expected 100)."}
+            "caption": "Per-genre counts for wav vs grey-spectrogram representations "
+                       "(dashed = expected 100). A representation missing an exemplar "
+                       "shows as a sub-100 bar."}
 
 
-def fig_mel_exemplars(data_root: Path, fig_dir: Path) -> dict:
+def _exemplar_grid(data_root: Path, fig_dir: Path, *, cmap: str, fname: str, suptitle: str):
     grey_root = data_root / "images_grey_scale"
     fig, axes = plt.subplots(2, 5, figsize=(12, 5))
     for ax, g in zip(axes.ravel(), GENRES):
         imgs = sorted((grey_root / g).glob("*.png"))
         if imgs:
-            ax.imshow(Image.open(imgs[0]), cmap="magma", aspect="auto")
+            ax.imshow(Image.open(imgs[0]), cmap=cmap, aspect="auto")
         ax.set_title(g, fontsize=9); ax.axis("off")
-    fig.suptitle("Per-genre grey-scale spectrogram exemplars")
+    fig.suptitle(suptitle)
     fig.tight_layout()
-    fig.savefig(fig_dir / "mel_exemplars.png", dpi=100); plt.close(fig)
-    return {"file": "mel_exemplars.png", "kind": "exemplars",
-            "caption": "One grey-scale spectrogram per genre."}
+    fig.savefig(fig_dir / fname, dpi=100); plt.close(fig)
+
+
+def fig_mel_exemplars(data_root: Path, fig_dir: Path) -> list:
+    """Two exemplar grids from the same source images: a true grey-scale render and a
+    false-color (magma) render, so the dashboard can show both side by side."""
+    _exemplar_grid(data_root, fig_dir, cmap="gray",
+                   fname="mel_exemplars_grey.png",
+                   suptitle="Per-genre grey-scale spectrogram exemplars")
+    _exemplar_grid(data_root, fig_dir, cmap="magma",
+                   fname="mel_exemplars_color.png",
+                   suptitle="Per-genre spectrogram exemplars (false-color, magma)")
+    return [
+        {"file": "mel_exemplars_grey.png", "kind": "exemplars_grey",
+         "caption": "One grey-scale spectrogram per genre (cmap=gray) — the raw representation as stored."},
+        {"file": "mel_exemplars_color.png", "kind": "exemplars_color",
+         "caption": "The same per-genre exemplars false-colored (cmap=magma) for readability."},
+    ]
 
 
 def main():
@@ -346,8 +386,8 @@ def main():
     type_audit = section_type_audit(df30, data_root)
     nerd, feat_figs = section_nerd_stats(df30, fig_dir)
     figures += feat_figs
-    figures.append(fig_class_balance(df30, fig_dir))
-    figures.append(fig_mel_exemplars(data_root, fig_dir))
+    figures.append(fig_class_balance(df30, missing["counts"], fig_dir))
+    figures += fig_mel_exemplars(data_root, fig_dir)
 
     stats = {
         "schema": "eda_stats/1.0",

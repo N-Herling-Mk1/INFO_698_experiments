@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experiment · BEARDOWN</title>
+<link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="page">
+  <div class="exp">
+
+    <div class="exp-head">
+      <div class="welcome-fk">F·O·R·G·E //  ORIGINAL EXPERIMENT</div>
+      <h1 class="exp-title">B.E.A.R. D.O.W.N.</h1>
+      <div class="exp-expand">Bayesian Evaluation of Audio Representations — A Deep Optimized Waveform Network</div>
+    </div>
+
+    <div class="exp-goal">
+      <span class="exp-goal-tag">GOAL</span>
+      <span>BEARDOWN was not chasing a leaderboard. It was a vehicle for two things: <b>testing a
+      multimodal architecture</b> for music-genre recognition, and <b>exploring epistemic / reliability
+      metrics</b> — model selection that rewards calibrated uncertainty and stability, not accuracy alone.
+      The accuracy target (75–80% on GTZAN, via k=3 cross-validation and broad random hyperparameter
+      sweeps) was the floor, not the point.</span>
+    </div>
+
+    <h2>The architecture</h2>
+    <p class="exp-p">A multimodal network in three stages: two deterministic encoders feed a fusion block,
+    which feeds a probabilistic Bayesian head. Each 30-second clip enters as <em>both</em> a spectrogram
+    image and a 58-dimensional feature vector, so the model sees timbre/time structure and engineered
+    audio statistics at once.</p>
+
+    <div class="exp-stack">
+      <div class="exp-stage">
+        <div class="exp-stage-k">1 · Dual encoders <span class="exp-tag det">deterministic</span></div>
+        <div class="exp-stage-v">A compact CNN (conv–ReLU–pool → flatten → dense) over the spectrogram,
+        and a small MLP (ReLU + structured dropout) over the 58 tabular features. Each projects its modality
+        into a latent embedding.</div>
+      </div>
+      <div class="exp-stage">
+        <div class="exp-stage-k">2 · Fusion block <span class="exp-tag det">deterministic</span></div>
+        <div class="exp-stage-v">Combines the two embeddings by concatenation or a gated mechanism
+        (chosen per sampled hyperparameter) into one unified multimodal representation.</div>
+      </div>
+      <div class="exp-stage">
+        <div class="exp-stage-k">3 · Bayesian classification head <span class="exp-tag bay">probabilistic</span></div>
+        <div class="exp-stage-v">Two variants: a <b>Flipout</b> dense layer (variational inference) or an
+        <b>MC-Dropout</b> dense layer (repeated stochastic passes). Outputs a softmax over the 10 genres
+        plus <b>epistemic</b> and <b>aleatoric</b> uncertainty, aggregated by Monte-Carlo evaluation.</div>
+      </div>
+    </div>
+
+    <h2>Data &amp; preprocessing</h2>
+    <p class="exp-p">GTZAN's spectrograms and feature CSVs don't align perfectly — after merging the two
+    modalities, ~10% of clips couldn't be matched and were dropped, leaving roughly <b>900 fully matched
+    multimodal samples</b>. Spectrograms were resized, pixel-normalized, and lightly augmented (time/frequency
+    masking, amplitude jitter); tabular features were z-score standardized with winsorization of spectral-flux
+    and energy outliers (no imputation — unmatched rows were removed during alignment). This dashboard's EDA
+    is the integrity layer underneath that step.</p>
+
+    <h2>Two questions</h2>
+    <div class="exp-q">
+      <div class="exp-q-tag q1">Q1</div>
+      <div>
+        <div class="exp-q-h">Baseline performance</div>
+        <div class="exp-q-b">Can the hybrid Bayesian / non-Bayesian model reach 75–80% accuracy? Measured
+        with classical metrics — precision, recall, F1, per-genre breakdowns, ROC curves, confusion
+        matrices — alongside Bayesian diagnostics.</div>
+      </div>
+    </div>
+    <div class="exp-q">
+      <div class="exp-q-tag q2">Q2</div>
+      <div>
+        <div class="exp-q-h">Reliability-aware evaluation <span class="exp-tag bay">central contribution</span></div>
+        <div class="exp-q-b">The <b>Robust Ranking Metric (RRM)</b> folds accuracy, cross-validation
+        stability, and posterior dispersion into a single reliability-aware score. It correlates only
+        moderately with accuracy (r ≈ 0.62) and weakly with off-diagonal confusion noise (r ≈ 0.26) — i.e.
+        it captures reliability dimensions that accuracy alone misses. Paired with rank aggregation and a
+        Pareto front over the accuracy-vs-reliability tradeoff.</div>
+      </div>
+    </div>
+
+    <div class="exp-foot">Source: INFO 510 Fall 2025 final project report (Group 7). BEARDOWN is the
+    genre-recognition reproduction carried into the FORGE suite.<br>
+    Original repo: <a href="https://github.com/N-Herling-Mk1/INFO_510_Fa25_Final_Proj"
+    target="_blank" rel="noopener">github.com/N-Herling-Mk1/INFO_510_Fa25_Final_Proj</a></div>
+  </div>
+</body>
+</html>

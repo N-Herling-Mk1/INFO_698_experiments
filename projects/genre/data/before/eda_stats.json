@@ -33482,12 +33482,17 @@
     {
       "file": "class_balance.png",
       "kind": "class_balance",
-      "caption": "Rows per genre in features_30_sec.csv (dashed = expected 100)."
+      "caption": "Per-genre counts for wav vs grey-spectrogram representations (dashed = expected 100). jazz.00054 is absent from the grey set, so jazz grey = 99."
     },
     {
-      "file": "mel_exemplars.png",
-      "kind": "exemplars",
-      "caption": "One grey-scale spectrogram per genre."
+      "file": "mel_exemplars_grey.png",
+      "kind": "exemplars_grey",
+      "caption": "One grey-scale spectrogram per genre (cmap=gray) \u2014 the raw representation as stored."
+    },
+    {
+      "file": "mel_exemplars_color.png",
+      "kind": "exemplars_color",
+      "caption": "The same per-genre exemplars false-colored (cmap=magma) for readability."
     }
   ]
 }
