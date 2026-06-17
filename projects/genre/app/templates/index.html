@@ -18,23 +18,15 @@
     <div class="shell-brand">
       <span class="shell-fk">F·O·R·G·E //</span>
       <span class="shell-title" id="shellTitle">BEARDOWN</span>
-      <span class="shell-sub" id="shellSub">genre recognition</span>
     </div>
     <span class="top-spacer"></span>
-    <!-- real link: the original INFO 510 experiment this reproduction is built on -->
-    <a class="top-link" id="repoLink"
-       href="https://github.com/N-Herling-Mk1/INFO_510_Fa25_Final_Proj"
-       target="_blank" rel="noopener"
-       title="Original experiment — N-Herling-Mk1/INFO_510_Fa25_Final_Proj">
-      <span class="gh-mark">◧</span> ORIGINAL REPO
-    </a>
-    <!-- placeholder top button slots (not yet wired — click/hover says so) -->
+    <!-- inert top button slots (functionality TBD) -->
     <div class="top-slots">
-      <span class="flash" id="flash"></span>
-      <button class="top-btn" data-ph="refresh"  title="placeholder — refresh (not yet wired)">⟳</button>
-      <button class="top-btn" data-ph="settings" title="placeholder — settings (not yet wired)">⚙</button>
-      <button class="top-btn" data-ph="help"     title="placeholder — help (not yet wired)">?</button>
+      <button class="top-btn" title="reserved — refresh">⟳</button>
+      <button class="top-btn" title="reserved — settings">⚙</button>
+      <button class="top-btn" title="reserved — help">?</button>
     </div>
+    <span class="flash" id="flash"></span>
   </header>
 
   <!-- left rail -->
@@ -67,6 +59,8 @@
       fyi:"Architecture & weights (stub) — the TensorFlow + tensorflow-probability Flipout Bayesian head and saved weights." },
     { id:"inference", label:"Inference", type:"nav", src:"/infer",
       fyi:"Predict & posterior (stub) — run inference and inspect predictive uncertainty." },
+    { id:"glossary",  label:"Glossary",  type:"nav", src:"/glossary",
+      fyi:"Glossary — every term and symbol used across the experiment, grouped and searchable, with equations rendered in KaTeX." },
   ];
 
   const view  = document.getElementById("view");
@@ -101,10 +95,6 @@
     }
   }
 
-  // placeholder top buttons: not wired yet — say so on click (tooltip already says it on hover)
-  document.querySelectorAll(".top-btn[data-ph]").forEach(b =>
-    b.onclick = () => showFlash(`${b.dataset.ph} is a placeholder — not wired yet`, "run"));
-
   function paint(){
     rail.innerHTML = PANELS.map(p =>
       `<button class="rail-btn ${p.id===active?'active':''}" data-id="${p.id}">
@@ -119,12 +109,8 @@
   // logo + title from the same config the panels use
   fetch("/api/config").then(r=>r.json()).then(c=>{
     if(c.logo){ const el=document.getElementById("shellLogo"); el.src=c.logo; el.hidden=false; }
-    const DISPLAY={genre:["BEARDOWN","genre recognition"],
-                   phonon:["PHONON","DOS reproduction"],
-                   atlas:["ATLAS","Run 3"]};
-    const [t,s] = DISPLAY[c.experiment] || [(c.experiment||"FORGE").toUpperCase(), ""];
-    document.getElementById("shellTitle").textContent = t;
-    document.getElementById("shellSub").textContent = s;
+    const DISPLAY={genre:"BEARDOWN · genre recognition",phonon:"phonon · DOS reproduction",atlas:"atlas · Run 3"};
+    document.getElementById("shellTitle").textContent = DISPLAY[c.experiment] || c.experiment || "FORGE";
   }).catch(()=>{});
 </script>
 </body>

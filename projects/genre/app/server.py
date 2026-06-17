@@ -99,6 +99,11 @@ def eda_page():
     return send_file(APP_DIR / "templates" / "eda.html")
 
 
+@app.get("/glossary")
+def glossary_page():
+    return send_file(APP_DIR / "templates" / "glossary.html")
+
+
 @app.get("/train")
 @app.get("/model")
 @app.get("/infer")
@@ -127,7 +132,16 @@ def eda():
     if not fp.exists():
         return jsonify(error=f"no '{phase}' EDA yet — run eda/run_eda.py --phase {phase}",
                        experiment=EXPERIMENT, phase=phase), 404
-    return jsonify(json.loads(fp.read_text()))
+    return jsonify(json.loads(fp.read_text(encoding="utf-8")))
+
+
+@app.get("/api/glossary")
+def glossary_data():
+    """Static reference content (phase-independent): <root>/data/glossary.json."""
+    fp = DATA / "glossary.json"
+    if not fp.exists():
+        return jsonify(error="no glossary.json in data/", experiment=EXPERIMENT), 404
+    return jsonify(json.loads(fp.read_text(encoding="utf-8")))
 
 
 @app.get("/api/runs")
@@ -137,7 +151,7 @@ def runs():
     if RUNS.exists():
         for rj in sorted(RUNS.glob("*/*/run.json")):
             try:
-                out.append(json.loads(rj.read_text()))
+                out.append(json.loads(rj.read_text(encoding="utf-8")))
             except Exception:
                 pass
     return jsonify(runs=out, experiment=EXPERIMENT)
