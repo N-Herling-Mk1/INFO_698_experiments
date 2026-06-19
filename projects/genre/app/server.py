@@ -65,13 +65,16 @@ def _fig_count(phase):
 
 
 def _logo():
-    """Project logo dropped into static/assets/ — any image that isn't a FORGE brand mark."""
+    """Project logo dropped into static/assets/ — any image that isn't a FORGE brand
+    mark or part of the favicon/app-icon family (those are tab/OS icons, not the logo)."""
     d = APP_DIR / "static" / "assets"
     brand = {"forge-mark.svg", "favicon.svg"}
+    icon_prefixes = ("favicon", "icon-", "apple-touch")   # the browser/OS icon set
     if d.exists():
         imgs = [p for p in d.iterdir()
                 if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".svg"}
-                and p.name not in brand]
+                and p.name not in brand
+                and not p.name.lower().startswith(icon_prefixes)]
         imgs.sort(key=lambda p: (p.suffix.lower() == ".svg", p.name))  # prefer raster
         if imgs:
             return f"/static/assets/{imgs[0].name}"
@@ -104,11 +107,20 @@ def glossary_page():
     return send_file(APP_DIR / "templates" / "glossary.html")
 
 
+@app.get("/data")
+def data_page():
+    return send_file(APP_DIR / "templates" / "data.html")
+
+
 @app.get("/train")
-@app.get("/model")
 @app.get("/infer")
 def stub_panel():
     return send_file(APP_DIR / "templates" / "stub.html")
+
+
+@app.get("/model")
+def model_page():
+    return send_file(APP_DIR / "templates" / "model.html")
 
 
 @app.get("/api/config")
@@ -144,6 +156,33 @@ def glossary_data():
     return jsonify(json.loads(fp.read_text(encoding="utf-8")))
 
 
+@app.get("/api/data")
+def data_artifacts():
+    """Bundle the data-pipeline artifacts for the Data panel (phase-independent):
+    leakage measurement, the recorded split, and the split-test results. Each piece
+    is optional — the panel degrades gracefully and tells you which script to run."""
+    def _load(name):
+        fp = DATA / name
+        if fp.exists():
+            try:
+                return json.loads(fp.read_text(encoding="utf-8"))
+            except Exception:
+                return None
+        return None
+    manifest = _load("manifest.json") or {}
+    return jsonify(
+        experiment=EXPERIMENT,
+        leakage=_load("leakage.json"),
+        split=manifest.get("split"),
+        tests=_load("splits_report.json"),
+        hints={
+            "leakage": "python projects/genre/src/leakage_report.py --data-root projects/genre/data/raw",
+            "tests": "python projects/genre/src/split_tests_report.py",
+            "split": "python projects/genre/src/sanity_check.py --data-root projects/genre/data/raw --write-manifest",
+        },
+    )
+
+
 @app.get("/api/runs")
 def runs():
     """Training tier (run.json / compute.json). Empty until train.py emits."""
@@ -165,6 +204,15 @@ def figures(phase, name):
     if not d.exists():
         abort(404)
     return send_from_directory(d, name)
+
+
+@app.get("/favicon.ico")
+def favicon_ico():
+    """Browsers auto-request /favicon.ico; serve the .ico beside the SVG."""
+    ico = APP_DIR / "static" / "assets" / "favicon.ico"
+    if ico.exists():
+        return send_file(ico)
+    abort(404)
 
 
 def _banner():

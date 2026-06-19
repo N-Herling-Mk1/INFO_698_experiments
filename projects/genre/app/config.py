@@ -9,7 +9,7 @@ HOST/PORT/DEBUG read the environment so the SAME server.py works both ways:
 import os
 
 EXPERIMENT = None             # None = auto-detect from folder name
-DEFAULT_PHASE = "before"      # before | after
+DEFAULT_PHASE = "after"       # before | after  (post-fix is the default view now)
 PHASES = ["before", "after"]
 
 HOST = os.environ.get("FORGE_HOST", "127.0.0.1")
