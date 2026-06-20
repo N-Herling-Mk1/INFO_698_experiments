@@ -113,9 +113,43 @@ def data_page():
 
 
 @app.get("/train")
-@app.get("/infer")
 def stub_panel():
     return send_file(APP_DIR / "templates" / "stub.html")
+
+
+@app.get("/infer")
+def infer_page():
+    return send_file(APP_DIR / "templates" / "infer.html")
+
+
+@app.post("/api/predict")
+def api_predict():
+    """Song drop-in -> per-genre scores + uncertainty. Generic across experiments:
+    lazy-imports projects/<exp>/src/predict.py and calls its predict_upload(...).
+    Lazy so the dashboard still boots without the torch/librosa training stack."""
+    import sys, os, tempfile, importlib
+    f = request.files.get("audio")
+    if f is None or not f.filename:
+        return jsonify(error="no audio file uploaded (field 'audio')"), 400
+    repo_root = EXP_ROOT.parent.parent          # projects/<exp> -> repo root
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    try:
+        mod = importlib.import_module(f"projects.{EXPERIMENT}.src.predict")
+    except Exception as e:
+        return jsonify(error=f"no predict module for '{EXPERIMENT}': {e}"), 501
+    suffix = os.path.splitext(f.filename)[1] or ".wav"
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    f.save(tmp.name); tmp.close()
+    try:
+        out = mod.predict_upload(tmp.name, EXP_ROOT)
+    except Exception as e:
+        return jsonify(error=f"prediction failed: {e}"), 500
+    finally:
+        try: os.unlink(tmp.name)
+        except OSError: pass
+    code = 404 if isinstance(out, dict) and out.get("error") else 200
+    return jsonify(out), code
 
 
 @app.get("/model")

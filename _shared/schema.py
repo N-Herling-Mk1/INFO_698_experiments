@@ -9,7 +9,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Any
 import json, time
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"   # 1.1: ComputeRecord.ops[] (per-path timings for F5)
 
 
 @dataclass
@@ -21,6 +21,10 @@ class ComputeRecord:
     est_flops: int | None = None           # via ptflops/thop on the model
     n_params: int | None = None
     device: str = "cpu"
+    # F5: per-compute-path timings (train | llla_fit | llla_knob | predict | hmc_resample).
+    # Each entry: {label, wall_s, peak_rss_mb, peak_vram_mb, n}. Populated by
+    # profiler.block(...). Sizes the deployed box from the inference paths, not just train.
+    ops: list[dict] = field(default_factory=list)
 
     # cost estimate helper: throughput x dataset x epochs -> projected wall time
     def project_wall_seconds(self, n_samples: int, epochs: int) -> float:

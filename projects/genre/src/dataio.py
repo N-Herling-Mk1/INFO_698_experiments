@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
-from _shared.splits import track_level_split, naive_random, Split, DEFAULT_RATIOS  # noqa: E402
+from _shared.splits import track_level_split, naive_random, stratified_split_seed42, Split, DEFAULT_RATIOS  # noqa: E402
 
 GENRES = ["blues", "classical", "country", "disco", "hiphop",
           "jazz", "metal", "pop", "reggae", "rock"]
@@ -48,9 +48,9 @@ def norm_image_id(track_id: str) -> str:
     return track_id.replace(".", "")
 
 
-def image_path(data_root: Path, track_id: str) -> Path:
+def image_path(data_root: Path, track_id: str, image_dir: str = "images_grey_scale") -> Path:
     g = track_id.split(".", 1)[0]
-    return data_root / "images_grey_scale" / g / f"{norm_image_id(track_id)}.png"
+    return data_root / image_dir / g / f"{norm_image_id(track_id)}.png"
 
 
 # ---------------------------------------------------------------- return type
@@ -124,7 +124,7 @@ def _load_tabular(data_root: Path, which: str, split_strategy: str, seed: int,
     tid_all = df["filename"].map(track_id_from_csv).to_numpy()
 
     sp = _make_split(df["filename"].tolist(), track_id_from_csv,
-                     split_strategy, seed, ratios)
+                     split_strategy, seed, ratios, data_root=data_root)
 
     scaler = {}
     if standardize:
@@ -152,9 +152,9 @@ def _load_one_image(path: Path, size: int) -> np.ndarray:
     return a[..., None]                       # [H,W,1]
 
 
-def _enumerate_tracks(data_root: Path) -> list[str]:
+def _enumerate_tracks(data_root: Path, image_dir: str = "images_grey_scale") -> list[str]:
     """One track id per grey spectrogram (the image rep is track-level)."""
-    grey = data_root / "images_grey_scale"
+    grey = data_root / image_dir
     out = []
     for g in GENRES:
         for p in sorted((grey / g).glob("*.png")):
@@ -164,16 +164,16 @@ def _enumerate_tracks(data_root: Path) -> list[str]:
 
 
 def _load_image(data_root: Path, split_strategy: str, seed: int, ratios,
-                standardize: bool, image_size: int) -> Loaded:
-    track_ids = _enumerate_tracks(data_root)
-    sp = _make_split(track_ids, lambda t: t, split_strategy, seed, ratios)
+                standardize: bool, image_size: int, image_dir: str = "images_grey_scale") -> Loaded:
+    track_ids = _enumerate_tracks(data_root, image_dir)
+    sp = _make_split(track_ids, lambda t: t, split_strategy, seed, ratios, data_root=data_root)
     tid_all = np.array(track_ids)
     y_all = np.array([LABEL_MAP[t.split(".", 1)[0]] for t in track_ids], dtype=np.int64)
 
     cache: dict[str, np.ndarray] = {}
     def img(t):
         if t not in cache:
-            cache[t] = _load_one_image(image_path(data_root, t), image_size)
+            cache[t] = _load_one_image(image_path(data_root, t, image_dir), image_size)
         return cache[t]
 
     X, y, tids = {}, {}, {}
@@ -198,7 +198,7 @@ def _load_image(data_root: Path, split_strategy: str, seed: int, ratios,
 
 # -------------------------------------------------------------------- fused core
 def _load_fused(data_root: Path, split_strategy: str, seed: int, ratios,
-                standardize: bool, drop_length: bool, image_size: int) -> Loaded:
+                standardize: bool, drop_length: bool, image_size: int, image_dir: str = "images_grey_scale") -> Loaded:
     """tab30 ⨝ image, 1:1 per track (BEARDOWN's gated/concat head). The split is
     computed once on track ids so the tabular and image rows stay aligned."""
     df = pd.read_csv(data_root / "features_30_sec.csv")
@@ -206,8 +206,8 @@ def _load_fused(data_root: Path, split_strategy: str, seed: int, ratios,
     df["track_id"] = df["filename"].map(track_id_from_csv)
     df = df.set_index("track_id")
 
-    track_ids = [t for t in _enumerate_tracks(data_root) if t in df.index]
-    sp = _make_split(track_ids, lambda t: t, split_strategy, seed, ratios)
+    track_ids = [t for t in _enumerate_tracks(data_root, image_dir) if t in df.index]
+    sp = _make_split(track_ids, lambda t: t, split_strategy, seed, ratios, data_root=data_root)
     tid_all = np.array(track_ids)
     Xtab_all = df.loc[tid_all, feature_cols].to_numpy(dtype=np.float64)
     y_all = np.array([LABEL_MAP[t.split(".", 1)[0]] for t in track_ids], dtype=np.int64)
@@ -219,7 +219,7 @@ def _load_fused(data_root: Path, split_strategy: str, seed: int, ratios,
     cache: dict[str, np.ndarray] = {}
     def img(t):
         if t not in cache:
-            cache[t] = _load_one_image(image_path(data_root, t), image_size)
+            cache[t] = _load_one_image(image_path(data_root, t, image_dir), image_size)
         return cache[t]
 
     X, y, tids = {}, {}, {}
@@ -237,12 +237,24 @@ def _load_fused(data_root: Path, split_strategy: str, seed: int, ratios,
 
 
 # --------------------------------------------------------------------- dispatch
-def _make_split(items, track_id_fn, strategy: str, seed: int, ratios) -> Split:
+def _make_split(items, track_id_fn, strategy: str, seed: int, ratios, data_root=None) -> Split:
     if strategy == "track":
         return track_level_split(items, track_id_fn, seed=seed, ratios=ratios)
     if strategy == "naive":
         return naive_random(items, seed=seed, ratios=ratios, track_id_fn=track_id_fn)
-    raise ValueError(f"split_strategy must be 'track' or 'naive'; got {strategy!r}")
+    if strategy == "stratified":
+        # BEARDOWN gtzan_eda.py split (seed 42 by default). Build the canonical track
+        # order + genre from features_30_sec.csv (CSV row order -> bit-exact partition).
+        import pandas as pd
+        df = pd.read_csv(Path(data_root) / "features_30_sec.csv")
+        ordered, genre = [], {}
+        for fn, lab in zip(df["filename"].astype(str), df["label"].astype(str)):
+            t = fn[:-4] if fn.lower().endswith(".wav") else fn
+            if t not in genre:
+                ordered.append(t); genre[t] = lab.lower()
+        return stratified_split_seed42(items, track_id_fn, ordered,
+                                       lambda t: genre[t], seed=seed)
+    raise ValueError(f"split_strategy must be 'track', 'naive', or 'stratified'; got {strategy!r}")
 
 
 def load(representation: str = "tab3",
@@ -252,7 +264,8 @@ def load(representation: str = "tab3",
          ratios=DEFAULT_RATIOS,
          standardize: bool = True,
          drop_length: bool = False,            # keep 58 to match the dashboard arch; True -> 57
-         image_size: int = 224) -> Loaded:     # native grey is 128; 224 = BEARDOWN repro
+         image_size: int = 128,
+         image_dir: str = "images_grey_scale") -> Loaded:  # image_dir: images_grey_scale (Kaggle) | images_mel (clean)
     """Load GTZAN into split numpy arrays with the leakage guard applied.
 
     Returns a ``Loaded``: ``.X`` / ``.y`` / ``.track_ids`` keyed by split, plus
@@ -267,9 +280,9 @@ def load(representation: str = "tab3",
         return _load_tabular(root, representation, split_strategy, seed, ratios,
                              standardize, drop_length)
     if representation == "image":
-        return _load_image(root, split_strategy, seed, ratios, standardize, image_size)
+        return _load_image(root, split_strategy, seed, ratios, standardize, image_size, image_dir)
     if representation == "fused":
-        return _load_fused(root, split_strategy, seed, ratios, standardize, drop_length, image_size)
+        return _load_fused(root, split_strategy, seed, ratios, standardize, drop_length, image_size, image_dir)
     raise ValueError(f"representation must be tab3|tab30|image|fused; got {representation!r}")
 
 
@@ -290,3 +303,49 @@ def to_tf_dataset(loaded: Loaded, split: str = "train", batch: int = 32,
     if shuffle and n:
         ds = ds.shuffle(buffer_size=n, seed=seed, reshuffle_each_iteration=True)
     return ds.batch(batch).prefetch(tf.data.AUTOTUNE)
+
+
+# ------------------------------------------------------------- torch.data wrapper
+def to_torch_loader(loaded: Loaded, split: str = "train", batch: int = 32,
+                    shuffle: bool | None = None, seed: int = 0,
+                    num_workers: int = 0, indices=None):
+    """Wrap one split's arrays in a torch ``TensorDataset`` + ``DataLoader``.
+
+    Torch mirror of ``to_tf_dataset``. The numpy core is unchanged — this only
+    adapts shape/dtype: images are transposed NHWC ``[N,H,W,1]`` -> NCHW
+    ``[N,1,H,W]`` for conv layers; labels -> ``long``. The fused rep yields
+    ``(image, tabular, y)`` batches; image/tabular reps yield ``(x, y)``.
+
+    ``indices`` (optional) selects a subset of rows *within* the split — used by
+    the k-fold CV to carve train/val folds out of the train split without
+    rebuilding the loader. Train shuffles by default.
+    """
+    import torch
+    from torch.utils.data import TensorDataset, DataLoader
+
+    if shuffle is None:
+        shuffle = (split == "train")
+    X, y = loaded.X[split], loaded.y[split]
+
+    def _img_nchw(a):
+        t = torch.as_tensor(np.asarray(a), dtype=torch.float32)
+        if t.ndim == 4:                      # [N,H,W,C] -> [N,C,H,W]
+            t = t.permute(0, 3, 1, 2).contiguous()
+        return t
+
+    def _sel(t):
+        return t if indices is None else t[indices]
+
+    yt = _sel(torch.as_tensor(np.asarray(y), dtype=torch.long))
+    if loaded.representation == "fused":
+        img = _sel(_img_nchw(X["image"]))
+        tab = _sel(torch.as_tensor(np.asarray(X["tabular"]), dtype=torch.float32))
+        ds = TensorDataset(img, tab, yt)
+    elif loaded.representation == "image":
+        ds = TensorDataset(_sel(_img_nchw(X)), yt)
+    else:                                    # tab3 | tab30
+        ds = TensorDataset(_sel(torch.as_tensor(np.asarray(X), dtype=torch.float32)), yt)
+
+    g = torch.Generator(); g.manual_seed(seed)
+    return DataLoader(ds, batch_size=batch, shuffle=shuffle,
+                      num_workers=num_workers, generator=g, drop_last=False)

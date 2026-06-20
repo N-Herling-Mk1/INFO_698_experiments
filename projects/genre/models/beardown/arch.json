@@ -1,0 +1,35 @@
+{
+  "model": "beardown",
+  "spec_cnn": {
+    "in_ch": 1,
+    "conv": [
+      [
+        32,
+        3
+      ],
+      [
+        64,
+        3
+      ],
+      [
+        128,
+        3
+      ]
+    ],
+    "embed": 512,
+    "dropout": 0.1882524106871173
+  },
+  "tab_mlp": {
+    "in_dim": 57,
+    "hidden": [
+      192
+    ],
+    "embed": 192,
+    "dropout": 0.1908397127167648
+  },
+  "fusion": "gated",
+  "penultimate": 512,
+  "head_dropout": 0.2,
+  "n_classes": 10,
+  "phi_dim": 512
+}

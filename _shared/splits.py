@@ -155,6 +155,55 @@ def track_level_split(items: Sequence[Any],
     )
 
 
+def stratified_split_seed42(items: Sequence[Any],
+                            track_id_fn: Callable[[Any], str],
+                            ordered_tracks: Sequence[str],
+                            genre_of: Callable[[str], str],
+                            seed: int = 42,
+                            test_size: float = 0.15,
+                            val_frac_of_remain: float = 0.176) -> Split:
+    """BEARDOWN's gtzan_eda.py split, ported exactly: two-stage StratifiedShuffleSplit
+    by genre. Stage 1 holds out `test_size` as test; stage 2 carves `val_frac_of_remain`
+    of the remainder as val. `ordered_tracks` MUST be in the features CSV row order —
+    StratifiedShuffleSplit(random_state=seed) is order-sensitive, so this is what makes
+    the partition bit-identical to theirs. Items are then assigned by track membership
+    (order-independent), so the loader's enumerate order doesn't matter.
+    """
+    from sklearn.model_selection import StratifiedShuffleSplit
+    tids = list(ordered_tracks)
+    y = np.array([genre_of(t) for t in tids])
+    idx = np.arange(len(tids))
+    sss1 = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=seed)
+    (train_idx, test_idx), = sss1.split(idx, y)
+    sss2 = StratifiedShuffleSplit(n_splits=1, test_size=val_frac_of_remain, random_state=seed)
+    (tr_pos, val_pos), = sss2.split(np.arange(train_idx.size), y[train_idx])
+
+    track_split: dict[str, str] = {}
+    for p in tr_pos:   track_split[tids[train_idx[p]]] = "train"
+    for p in val_pos:  track_split[tids[train_idx[p]]] = "val"
+    for i in test_idx: track_split[tids[i]] = "test"
+
+    where = {"train": [], "val": [], "test": []}
+    for i, it in enumerate(items):
+        s = track_split.get(str(track_id_fn(it)))
+        if s is not None:
+            where[s].append(i)
+
+    tr = [t for t, s in track_split.items() if s == "train"]
+    va = [t for t, s in track_split.items() if s == "val"]
+    te = [t for t, s in track_split.items() if s == "test"]
+    assert_no_track_overlap(tr, va, te)
+    return Split(
+        train=np.array(where["train"], dtype=np.int64),
+        val=np.array(where["val"], dtype=np.int64),
+        test=np.array(where["test"], dtype=np.int64),
+        track_split=track_split,
+        meta={"mode": "stratified", "seed": seed, "source": "BEARDOWN gtzan_eda.py",
+              "test_size": test_size, "val_frac_of_remain": val_frac_of_remain,
+              "n_tracks": len(track_split), "n_items": len(items)},
+    )
+
+
 def naive_random(items: Sequence[Any],
                  seed: int = 0,
                  ratios: Ratios = DEFAULT_RATIOS,
