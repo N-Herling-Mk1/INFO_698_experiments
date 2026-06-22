@@ -7,162 +7,170 @@
 <link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="/static/css/style.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
 <style>
-  /* scoped to the Model panel — shared TRON tokens from style.css, mp- namespace */
-  .mp-wrap{max-width:1040px;margin:0 auto;padding:22px}
-  .mp-fk{font-family:var(--disp);letter-spacing:.22em;color:var(--cyan);font-size:12px;
-         text-shadow:0 0 12px rgba(45,226,230,.4)}
+  /* Model panel — registry comparison + selection. mp- namespace, shared TRON tokens */
+  .mp-wrap{max-width:1080px;margin:0 auto;padding:22px}
+  .mp-fk{font-family:var(--disp);letter-spacing:.22em;color:var(--cyan);font-size:12px;text-shadow:0 0 12px rgba(45,226,230,.4)}
   .mp-title{font-family:var(--disp);font-weight:700;letter-spacing:.06em;margin:.25em 0 .15em;font-size:26px}
-  .mp-sub{color:var(--muted);font-size:13px;line-height:1.6;max-width:80ch}
-  .mp-note{margin:16px 0 22px;border-left:3px solid var(--amber);background:#15110a;
-           padding:11px 15px;border-radius:0 6px 6px 0;font-size:13px;line-height:1.6}
-  .mp-note b{color:var(--amber)}
-  .mp-p{font-size:13.5px;line-height:1.6;margin:.4em 0} .dim{color:var(--muted)} b{color:#eaf6f8}
-  code{font-family:var(--mono);color:var(--cyan);background:#0a131c;border:1px solid var(--line);
-       border-radius:3px;padding:1px 5px}
+  .mp-sub{color:var(--muted);font-size:13px;line-height:1.6;max-width:84ch}
+  code{font-family:var(--mono);color:var(--cyan);background:#0a131c;border:1px solid var(--line);border-radius:3px;padding:1px 5px}
+  b{color:#eaf6f8}
 
-  .mp-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
-           padding:18px 18px 16px;margin:14px 0;position:relative;overflow:hidden}
-  .mp-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
-  .mp-card.req::before{background:var(--orange)}
-  .mp-card.tgt::before{background:var(--cyan)}
-  .mp-card.str::before{background:var(--muted)}
-  .mp-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
-  .mp-n{font-family:var(--disp);font-size:11px;color:var(--muted);letter-spacing:.16em}
-  .mp-name{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.04em}
-  .mp-pill{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;
-           border-radius:3px;border:1px solid currentColor}
-  .mp-pill.req{color:var(--orange)} .mp-pill.tgt{color:var(--cyan)} .mp-pill.str{color:var(--muted)}
-  .mp-arch{color:var(--text);font-size:13.5px;line-height:1.6;margin:8px 0}
-  .mp-grid{display:grid;grid-template-columns:130px 1fr;gap:6px 14px;margin-top:10px;font-size:13px}
-  .mp-grid .k{color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:11px;padding-top:2px}
-  .mp-grid .v{color:var(--text);line-height:1.55}
-  .mp-metric{margin-top:10px;background:#0a131c;border:1px solid var(--line);border-radius:6px;
-             padding:10px 14px;font-size:13px;line-height:1.7;overflow-x:auto}
-  .mp-status{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;margin-top:12px;
-             color:var(--muted)}
-  .mp-dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-  .mp-dot.done{background:var(--good)} .mp-dot.pending{background:var(--amber)}
-  .mp-src{color:var(--muted);font-size:11.5px;margin-top:8px}
-  .mp-foot{color:var(--muted);font-size:12px;margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
+  /* active-model banner */
+  .mp-active{background:var(--panel);border:1px solid var(--cyan);border-radius:10px;padding:14px 18px;margin:16px 0;
+    position:relative;overflow:hidden}
+  .mp-active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--cyan)}
+  .mp-active .lbl{font-family:var(--disp);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}
+  .mp-active .id{font-family:var(--disp);font-weight:700;font-size:18px;color:var(--text);margin:3px 0}
+  .mp-active .meta{color:var(--muted);font-size:12px}
+  .mp-active .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .mp-chip{background:#0a131c;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+  .mp-chip .v{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--text)} .mp-chip.cyan .v{color:var(--cyan)}
+  .mp-chip .l{color:var(--muted);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+
+  .mp-sec{font-family:var(--disp);letter-spacing:.16em;color:var(--cyan);font-size:12.5px;text-transform:uppercase;
+    margin:24px 0 8px;display:flex;align-items:center;gap:10px}
+  .mp-sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* comparison table */
+  .mp-tablewrap{overflow-x:auto}
+  table.mp-cmp{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}
+  table.mp-cmp th,table.mp-cmp td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.mp-cmp th{color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.06em;font-size:10px}
+  table.mp-cmp td.model,table.mp-cmp th.model{text-align:left}
+  table.mp-cmp .fam{font-family:var(--disp);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--cyan-dim);padding-top:14px}
+  table.mp-cmp tr.active td{background:rgba(45,226,230,.06)}
+  table.mp-cmp tr.active td.model{box-shadow:inset 3px 0 0 var(--cyan)}
+  .mp-mid{font-family:var(--mono);font-size:12px;color:var(--text)}
+  .mp-mid .ts{color:var(--muted);font-size:11px}
+  .pill{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid currentColor}
+  .pill.pass{color:var(--good)} .pill.fail{color:var(--amber)}
+  .mp-selbtn{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    background:var(--panel);border:1px solid var(--cyan);color:var(--cyan);border-radius:4px;padding:5px 12px;cursor:pointer}
+  .mp-selbtn:hover{background:var(--cyan);color:#04161a}
+  .mp-activebadge{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+  .dim{color:var(--muted)}
+  .mp-empty{background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:22px;color:var(--muted);font-size:13px;line-height:1.7}
+  .mp-empty b{color:var(--text)}
+  .mp-foot{color:var(--muted);font-size:12px;margin-top:22px;border-top:1px solid var(--line);padding-top:12px;line-height:1.6}
+  .mp-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--cyan);
+    color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+  .mp-toast.show{opacity:1}
 </style>
 </head>
 <body class="page">
 <div class="mp-wrap">
-
-  <div class="mp-fk">F·O·R·G·E //  MODEL ROSTER</div>
+  <div class="mp-fk">F·O·R·G·E //  MODEL · REGISTRY</div>
   <div class="mp-title">Models</div>
-  <div class="mp-sub">One architecture, delivered as a tiered set (proposal §3b). Each FORGE
-    reproduction ships between one and three trained models so the platform can showcase
-    differences <i>between</i> models, not just one model's uncertainty.</div>
+  <div class="mp-sub">Every training run is saved as an immutable, versioned bundle and indexed here. Compare them
+    on the evidence, then <b>select the active model</b> — the sticky pointer that song drop-in (Inference) and
+    FORGE both resolve to. There's no "best"; the panel lays out the numbers and you pick.</div>
 
-  <div class="mp-note"><b>Floor = Model 1.</b> Only the faithful reproduction is a hard
-    deliverable. Model 2 is the goal wherever the timeline allows; Model 3 is opportunistic.
-    The Bayesian layer is <b>last-layer Laplace (LLLA)</b> for the interactive path with
-    <b>HMC</b> as ground truth — the deterministic backbone stays in PyTorch, only the final
-    layer goes Bayesian.</div>
+  <div id="mpActive"></div>
+  <div class="mp-sec">Registry · compare &amp; select</div>
+  <div id="mpTable"><div class="mp-empty">reading <code>/api/registry</code>…</div></div>
 
-  <!-- MODEL 1 -->
-  <div class="mp-card req">
-    <div class="mp-h">
-      <span class="mp-n">MODEL 1</span>
-      <span class="mp-name">Faithful BEARDOWN</span>
-      <span class="mp-pill req">required</span>
-    </div>
-    <div class="mp-arch">A multimodal CNN: a <b>spectrogram encoder</b> and an
-      <b>engineered-feature encoder</b>, <b>fused</b>, with a <b>Bayesian classification head</b>.
-      Reproduced to the source work's reported configuration and performance — the fidelity anchor.</div>
-    <div class="mp-grid">
-      <div class="k">target</div>
-      <div class="v">validation accuracy <b>≥ 0.75</b> (cfg_14 = 0.766); sweep mean ≈ 0.72;
-        per-genre F1 in <b>0.46–0.89</b></div>
-      <div class="k">selection</div>
-      <div class="v">match the source config — not the RRM metric</div>
-      <div class="k">data</div>
-      <div class="v"><code>fused</code> (30-sec): image + 58 features, 1:1 per track</div>
-    </div>
-    <div class="mp-src">Source: BEARDOWN (Herling &amp; Attili 2025), Table 9 reproduction target.</div>
-    <div class="mp-status"><span class="mp-dot" data-model="beardown"></span>
-      <span data-status="beardown">checking runs…</span></div>
-  </div>
-
-  <!-- MODEL 2 -->
-  <div class="mp-card tgt">
-    <div class="mp-h">
-      <span class="mp-n">MODEL 2</span>
-      <span class="mp-name">Author-optimized (RRM)</span>
-      <span class="mp-pill tgt">target</span>
-    </div>
-    <div class="mp-arch">The same architecture, with the configuration chosen by the
-      <b>reliability-aware sweep</b> — scored on accuracy, fold-stability, and posterior
-      uncertainty together, not accuracy alone (Appendix C).</div>
-    <div class="mp-metric">
-      Robust Ranking Metric, over 3-fold CV:
-      $$v = \left(\,1-\bar a,\ \tfrac{\sigma_{\text{fold}}}{\sigma_{\max}},\ \tfrac{U_{\text{mean}}}{U_{\max}}\,\right),
-        \qquad \mathrm{RRM} = 1 - \lVert v \rVert_2$$
-      equal-weight centroid $w=(\tfrac13,\tfrac13,\tfrac13)$; selection maximizes RRM.
-    </div>
-    <div class="mp-grid">
-      <div class="k">sweep</div>
-      <div class="v">~20 configs × 3-fold CV (the mk5l / mk5m setup)</div>
-      <div class="k">reporting</div>
-      <div class="v">RRM is <b>selection-only, never reported</b> — results use standard metrics
-        (accuracy, P/R/F1, ROC-AUC, ECE)</div>
-      <div class="k">axes</div>
-      <div class="v">inaccuracy <code>1−ā</code> · instability <code>σ_fold/σ_max</code> ·
-        posterior uncertainty <code>U_mean/U_max</code></div>
-    </div>
-    <div class="mp-src">Source: FORGE proposal Appendix C (Exploratory Reliability-Aware Selection Metrics).</div>
-    <div class="mp-status"><span class="mp-dot" data-model="beardown_rrm"></span>
-      <span data-status="beardown_rrm">checking runs…</span></div>
-  </div>
-
-  <!-- MODEL 3 -->
-  <div class="mp-card str">
-    <div class="mp-h">
-      <span class="mp-n">MODEL 3</span>
-      <span class="mp-name">30-sec vs 3-sec pair</span>
-      <span class="mp-pill str">stretch</span>
-    </div>
-    <div class="mp-arch">A data-permitting variant: parallel <b>30-second</b> and
-      <b>3-second-clip</b> models whose posteriors are compared head-to-head — does the
-      finer-grained input regime change what the model is uncertain about?</div>
-    <div class="mp-grid">
-      <div class="k">data</div>
-      <div class="v">already half-built into the loader: <code>tab30</code> vs <code>tab3</code>,
-        both behind the same track-level leakage guard</div>
-      <div class="k">scope</div>
-      <div class="v">opportunistic — only if the timeline allows after Models 1 &amp; 2</div>
-    </div>
-    <div class="mp-src">Source: FORGE proposal §3b, data-permitting variant (3).</div>
-    <div class="mp-status"><span class="mp-dot" data-model="beardown_3sec"></span>
-      <span data-status="beardown_3sec">checking runs…</span></div>
-  </div>
-
-  <div class="mp-foot">Delivery status reads <code>/api/runs</code> — each model flips to
-    <b>delivered</b> once <code>train.py</code> emits a matching <code>run.json</code>. Full
-    architecture diagram lives on the <b>Experiment</b> panel; the data tier and leakage guard
-    are on <b>Data</b>.</div>
-
+  <div class="mp-foot">Source: <code>models/registry.json</code> + each <code>models/&lt;family&gt;__&lt;ts&gt;/</code> bundle.
+    Selecting writes the <code>selected</code> pointer; nothing is overwritten or deleted. The deep metrics
+    (confusion · calibration · ROC) for the active model live in the <b>Training</b> panel; run
+    <code>metrics.py --bundle &lt;dir&gt;</code> on any bundle to populate its full wall.</div>
 </div>
+<div class="mp-toast" id="mpToast"></div>
 
 <script>
-(async function(){
-  let runs = [];
-  try { runs = (await (await fetch("/api/runs")).json()).runs || []; } catch(e){}
-  const have = new Set(runs.map(r => (r.model || "").toLowerCase()));
-  document.querySelectorAll("[data-status]").forEach(el => {
-    const key = el.getAttribute("data-status");
-    const dot = document.querySelector(`.mp-dot[data-model="${key}"]`);
-    if (have.has(key)) { el.textContent = "delivered — run.json present"; dot.className = "mp-dot done"; }
-    else { el.textContent = "not yet trained"; dot.className = "mp-dot pending"; }
-  });
-})();
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const fmt=(x,d=3)=>(x==null||Number.isNaN(x))?"—":(+x).toFixed(d);
+const pct=x=>(x==null||Number.isNaN(x))?"—":(100*x).toFixed(1)+"%";
+const when=ts=>{if(!ts)return"—";const d=new Date(ts*1000);return isNaN(d)?"—":d.toLocaleString([],{year:"numeric",month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit"});};
+
+let REG={selected:null,entries:[]};
+
+async function load(){
+  try{const r=await fetch("/api/registry");REG=await r.json();}catch(e){REG={selected:null,entries:[],error:String(e)};}
+  render();
+}
+
+function render(){
+  const entries=REG.entries||[];
+  const sel=REG.selected;
+  // active banner
+  const a=entries.find(e=>e.id===sel);
+  const ab=$("#mpActive");
+  if(a){
+    const s=a.summary||{};
+    ab.innerHTML=`<div class="mp-active">
+      <div class="lbl">active model · used by inference + FORGE</div>
+      <div class="id">${esc(a.id)}</div>
+      <div class="meta">family <b>${esc(a.family)}</b> · saved ${when(a.created)}${a.git_sha?` · <code>${esc(a.git_sha)}</code>`:""}${a.run_id?` · run ${esc(a.run_id)}`:""}</div>
+      <div class="chips">
+        <span class="mp-chip cyan"><div class="v">${fmt(s.cv_mean,3)} ±${fmt(s.cv_std,3)}</div><div class="l">CV mean</div></span>
+        <span class="mp-chip"><div class="v">${pct(s.val_acc)}</div><div class="l">val acc</div></span>
+        <span class="mp-chip"><div class="v">${pct(s.test_acc)}</div><div class="l">test acc</div></span>
+        <span class="mp-chip"><div class="v">${fmt(s.test_macro_f1,3)}</div><div class="l">test macro-F1</div></span>
+        <span class="mp-chip"><div class="v">${s.test_ece!=null?fmt(s.test_ece,3):"—"}</div><div class="l">test ECE</div></span>
+      </div></div>`;
+  } else {
+    ab.innerHTML=`<div class="mp-active" style="border-color:var(--amber)"><div class="lbl" style="color:var(--amber)">no active model</div>
+      <div class="meta">Select one below, or train a model to populate the registry.</div></div>`;
+  }
+  // table
+  const host=$("#mpTable");
+  if(!entries.length){
+    host.innerHTML=`<div class="mp-empty"><b>No models in the registry yet.</b><br>
+      Train one and it's saved + indexed automatically:<br>
+      <code>python projects\\genre\\src\\train.py --config projects\\genre\\configs\\beardown.yaml</code></div>`;
+    return;
+  }
+  // group by family, families ordered by their newest entry
+  const fams={}; entries.forEach(e=>{(fams[e.family]=fams[e.family]||[]).push(e);});
+  const famOrder=Object.keys(fams).sort((x,y)=>Math.max(...fams[y].map(e=>e.created))-Math.max(...fams[x].map(e=>e.created)));
+  let rows="";
+  for(const fam of famOrder){
+    rows+=`<tr><td class="fam model" colspan="9">${esc(fam)} · ${fams[fam].length} run(s)</td></tr>`;
+    for(const e of fams[fam].sort((p,q)=>q.created-p.created)){
+      const s=e.summary||{}, isSel=e.id===sel;
+      const ts=e.id.split("__")[1]||"";
+      const gate=s.passed==null?`<span class="dim">—</span>`:`<span class="pill ${s.passed?'pass':'fail'}">${s.passed?'pass':'below'}</span>`;
+      const action=isSel?`<span class="mp-activebadge">● active</span>`
+        :`<button class="mp-selbtn" data-id="${esc(e.id)}">select</button>`;
+      rows+=`<tr class="${isSel?'active':''}">
+        <td class="model"><div class="mp-mid">${esc(e.family)} <span class="ts">${esc(ts)}</span></div></td>
+        <td>${pct(s.val_acc)}</td>
+        <td>${pct(s.test_acc)}</td>
+        <td>${fmt(s.test_macro_f1,3)}</td>
+        <td>${fmt(s.cv_mean,3)} <span class="dim">±${fmt(s.cv_std,3)}</span></td>
+        <td>${s.test_ece!=null?fmt(s.test_ece,3):`<span class="dim">—</span>`}</td>
+        <td>${gate}</td>
+        <td>${e.has_metrics_full?`<span class="dim" title="full metrics wall available">✓</span>`:`<span class="dim" title="run metrics.py on this bundle">—</span>`}</td>
+        <td>${action}</td></tr>`;
+    }
+  }
+  host.innerHTML=`<div class="mp-tablewrap"><table class="mp-cmp">
+    <thead><tr>
+      <th class="model">model</th><th>val acc</th><th>test acc</th><th>test F1</th>
+      <th>CV mean±σ</th><th>test ECE</th><th>gate</th><th>full</th><th></th>
+    </tr></thead><tbody>${rows}</tbody></table></div>`;
+  host.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>selectModel(b.dataset.id));
+}
+
+async function selectModel(id){
+  try{
+    const r=await fetch("/api/model/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+    const d=await r.json();
+    if(d.ok){ toast("active model → "+id); await load(); }
+    else { toast("select failed: "+(d.error||r.status)); }
+  }catch(e){ toast("select failed: "+e); }
+}
+
+function toast(msg){
+  const t=$("#mpToast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+load();
 </script>
 </body>
 </html>

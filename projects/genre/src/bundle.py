@@ -27,7 +27,7 @@ from .models.beardown import BeardownNet
 
 
 BUNDLE_FILES = ["weights.pt", "arch.json", "scaler.json", "label_map.json",
-                "phi_train.npy", "ggn_eig.npz", "metrics.json"]
+                "phi_train.npy", "y_train.npy", "ggn_eig.npz", "metrics.json"]
 
 
 def _json_safe(obj: Any):
@@ -44,15 +44,22 @@ def _json_safe(obj: Any):
 
 # ------------------------------------------------------------------ φ extraction
 @torch.no_grad()
-def compute_phi(model: BeardownNet, loader, device="cpu") -> np.ndarray:
-    """Penultimate features over a loader (fused batches: image, tabular, y)."""
+def compute_phi(model: BeardownNet, loader, device="cpu", return_y=False):
+    """Penultimate features over a loader (fused batches: image, tabular, y).
+    With return_y, also returns the labels in the SAME order (for HMC / y_train)."""
     model.eval()
-    out = []
+    out, ys = [], []
     for batch in loader:
-        img, tab, _ = batch
+        img, tab, y = batch
         phi = model.features(img.to(device), tab.to(device))
         out.append(phi.cpu().numpy())
-    return np.concatenate(out, axis=0) if out else np.empty((0, 0), np.float32)
+        if return_y:
+            ys.append(y.cpu().numpy() if hasattr(y, "cpu") else np.asarray(y).ravel())
+    phi = np.concatenate(out, axis=0) if out else np.empty((0, 0), np.float32)
+    if return_y:
+        y = np.concatenate(ys, axis=0).astype(np.int64) if ys else np.empty((0,), np.int64)
+        return phi, y
+    return phi
 
 
 def ggn_eigenbasis(phi: np.ndarray):
@@ -80,8 +87,9 @@ def write_bundle(out_dir: str, model: BeardownNet, loaded, metrics: dict,
     (out / "label_map.json").write_text(json.dumps(loaded.label_map, indent=2), encoding="utf-8")
     (out / "metrics.json").write_text(json.dumps(_json_safe(metrics), indent=2), encoding="utf-8")
 
-    phi = compute_phi(model, phi_loader, device=device)
+    phi, y = compute_phi(model, phi_loader, device=device, return_y=True)
     np.save(out / "phi_train.npy", phi)
+    np.save(out / "y_train.npy", y)                          # labels for HMC, φ-aligned
     lam, U = ggn_eigenbasis(phi)
     np.savez(out / "ggn_eig.npz", Lambda=lam, U=U, n=phi.shape[0], d=phi.shape[1])
 

@@ -98,11 +98,22 @@ def has_model(model_dir="projects/genre/models/beardown") -> bool:
 
 def predict_upload(file_path, exp_root, device: str = "cpu") -> dict:
     """Uniform entrypoint the generic /api/predict route calls (one per experiment).
-    Reads the run_name + mel/image config, resolves the bundle, runs predict_song."""
+    Resolves the SELECTED bundle from the model registry (sticky active model), so
+    song drop-in always runs whatever you picked in the Model panel; falls back to
+    the legacy flat models/<run_name> slot if the registry isn't available."""
     import yaml
     exp_root = Path(exp_root)
     cfg = yaml.safe_load(open(exp_root / "configs" / "beardown.yaml", encoding="utf-8"))
-    model_dir = exp_root / "models" / cfg.get("run_name", "beardown")
+    run_name = cfg.get("run_name", "beardown")
+    models_root = exp_root / "models"
+    model_dir = None
+    try:
+        from . import registry
+        model_dir = registry.selected_dir(str(models_root), fallback_family=run_name)
+    except Exception:
+        model_dir = None
+    if not model_dir:
+        model_dir = str(models_root / run_name)
     if not has_model(str(model_dir)):
         return {"error": "no trained model yet — run train.py first", "model_dir": str(model_dir)}
     return predict_song(str(file_path), model_dir=str(model_dir),

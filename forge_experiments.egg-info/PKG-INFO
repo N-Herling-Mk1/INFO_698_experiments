@@ -1,0 +1,23 @@
+Metadata-Version: 2.4
+Name: forge-experiments
+Version: 0.2.0
+Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scikit-learn
+Requires-Dist: pyyaml
+Requires-Dist: tensorflow>=2.16
+Requires-Dist: tensorflow-probability>=0.24
+Requires-Dist: librosa
+Requires-Dist: soundfile
+Requires-Dist: psutil
+Requires-Dist: tqdm
+Provides-Extra: eda
+Requires-Dist: matplotlib>=3.7; extra == "eda"
+Requires-Dist: seaborn>=0.13; extra == "eda"
+Requires-Dist: scipy>=1.10; extra == "eda"
+Requires-Dist: pillow>=10.0; extra == "eda"
+Provides-Extra: app
+Requires-Dist: flask>=3.0; extra == "app"
+Dynamic: license-file
