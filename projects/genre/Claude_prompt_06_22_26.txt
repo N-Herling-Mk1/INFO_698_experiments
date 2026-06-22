@@ -1,0 +1,26 @@
+FORGE — INFO 698 capstone, build-session handoff
+I'm Steve (Nathan Herling, GitHub N-Herling-Mk1). FORGE = Functional-posterior Observatory for Refinement and Geometric Exploration: a Flask dashboard tab wrapping a frozen music-genre model (BEARDOWN/GTZAN, 10 genres, val acc 0.7467 / test 0.700 / macro-F1 0.686 / test ECE 0.099) with a last-layer Laplace (LLLA) head + HMC gold-standard sampler. TRON Ares aesthetic (cyan/amber on black, Orbitron/Share Tech Mono). Repo root: C:\Users\natha\OneDrive\Desktop\0_Summer_26\INFO_698_experiments.
+Core hypothesis FORGE answers: "can the model go further, or is it data/noise-capped?" Headline finding: ~506/512 last-layer weight-directions are prior-led (data-starved) → data-limited, not capacity-limited.
+Files (repo-relative paths):
+
+projects\genre\app\templates\forge.html — the whole tab UI (the big file)
+projects\genre\app\server.py — routes incl /api/forge/{meta,posterior,datasweep,hmc}
+projects\genre\src\bayes\llla.py — Laplace math core
+projects\genre\src\bayes\hmc.py — HMC sampler (dual-averaging, R̂/ESS/divergence/trace diagnostics)
+projects\genre\src\bayes\backfill_y_train.py — backfills y_train into the bundle
+projects\genre\src\bundle.py — now caches y_train.npy
+
+Tabs: overview (default; big DATA-LIMITED headline + quick-ref glossary), posterior (genre selector → big auto-zoomed sampled histogram + ridgeline picker), model, τ-sweep, eigenspectrum, data·frac, report, HMC.
+Report synthesizes 4 angles (eigenspectrum / data-fraction / epistemic-vs-aleatoric / aleatoric floor) + an HMC reliability check (gated on convergence). Has color-coded EPISTEMIC(reducible)/ALEATORIC(irreducible) tags + split bar, and a recommendations engine (reduce-epistemic vs aleatoric-floor vs sampler-fix).
+HMC runs server-side (~10-20s), animates HMC histogram vs LLLA Gaussian overlay, shows convergence row (R̂/ESS/divergences/accept + log-post trace with warmup boundary). Prerequisite: must run the y_train backfill once on my machine.
+Latest change (just landed): UI rework — removed left rail, consolidated all controls into one right-side master control board (example nav + τ knob + calibration readouts), added a ⊞ collapse toggle for full-width graphs, tooltips on all buttons.
+Key conventions Claude should follow:
+
+I work on Windows; deliver files via a path-preserving zip (Expand-Archive ... -Force at repo root) AND individually, and always tell me the exact repo-relative path each file goes to.
+ALWAYS verify the staged/downloaded file matches the working copy (diff -q) before presenting — there were repeated stale-file bugs.
+Validate forge.html JS with new vm.Script(src) (browser-equivalent), NOT node --check (which masks top-level-await bugs).
+The sandbox has numpy/sklearn/flask/node but NO torch/librosa/GTZAN data — so torch-dependent code (predict, from_bundle, live endpoints) can't run there; test the pure-numpy math and frontend JS only.
+Be direct/terse; flag conceptual errors rather than just complying.
+
+Pending / next build: the 4-panel multi-chain MCMC diagnostics view (trace · ACF · running-R̂ · density+95%HDI) for a selectable genre-probability scalar, running 2-4 short chains. Plus "better posterior stats" (HDI, MCSE, quantiles, skewness). Also awaiting my read on whether the 220px master board feels right vs moving controls to a bottom bar.
+Open thread: a jazz example showed HMC 51% vs LLLA 96% — diagnosed as either an unconverged chain (ESS=43, divergences) or a large-τ prior effect; the report now correctly gates on convergence and classifies "over-confident at the mode" vs "collapses the tail." Convergence recipe: samples 700, warmup 400, leapfrog 25; lower τ only if divergences persist.
