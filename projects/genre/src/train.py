@@ -33,7 +33,7 @@ C, A, R = "\033[36m", "\033[33m", "\033[0m"
 
 
 def _unpack(batch, rep, device):
-    if rep == "fused":
+    if rep in ("fused", "fused3"):
         img, tab, y = batch
         return (img.to(device), tab.to(device)), y.to(device)
     x, y = batch

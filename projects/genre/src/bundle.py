@@ -93,7 +93,15 @@ def write_bundle(out_dir: str, model: BeardownNet, loaded, metrics: dict,
     lam, U = ggn_eigenbasis(phi)
     np.savez(out / "ggn_eig.npz", Lambda=lam, U=U, n=phi.shape[0], d=phi.shape[1])
 
-    return {"dir": str(out), "files": BUNDLE_FILES, "phi_shape": list(phi.shape)}
+    # self-describing bundle: inputs.json (named input axes) + bundle.json
+    # (capabilities). Torch-free; gates the FORGE attribution tab (spec §5). The
+    # 'attribution' capability appears once attribution.py:precompute writes
+    # attribution.npz and re-runs this — born attribution-ready, filled in later.
+    from .attribution import write_self_description
+    desc = write_self_description(out, loaded)
+
+    return {"dir": str(out), "files": BUNDLE_FILES, "phi_shape": list(phi.shape),
+            "capabilities": desc["capabilities"]}
 
 
 # ----------------------------------------------------------------------- loader

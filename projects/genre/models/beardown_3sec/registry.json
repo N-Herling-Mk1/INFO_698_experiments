@@ -1,0 +1,27 @@
+{
+  "selected": null,
+  "entries": [
+    {
+      "id": "beardown_3sec",
+      "family": "beardown_3sec",
+      "dir": "projects/genre/models/beardown_3sec",
+      "created": 1782204824,
+      "summary": {
+        "val_acc": 0.7763684913217623,
+        "val_macro_f1": 0.7780568023631723,
+        "test_acc": 0.7886666666666666,
+        "test_macro_f1": 0.7883394750466727,
+        "cv_mean": 0.7774600260477961,
+        "cv_std": 0.008768331620655424,
+        "test_ece": null,
+        "passed": true,
+        "accept_min": 0.75,
+        "target": 0.8
+      },
+      "has_metrics_full": false,
+      "git_sha": "9e77194",
+      "run_id": "20260623-015344"
+    }
+  ],
+  "generated": "2026-06-23 01:53:44"
+}

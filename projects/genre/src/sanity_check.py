@@ -67,10 +67,30 @@ def check_rep(data_root: Path, rep: str, **kw):
     for name in ("train", "val", "test"):
         genres = {t.split(".", 1)[0] for t in d.track_ids[name]}
         assert genres == set(dataio.GENRES), f"{rep}/{name}: coverage<1.0 ({set(dataio.GENRES)-genres})"
-    # standardization sanity (tab/fused): train mean ≈ 0
+    # standardization sanity (tab/fused): train tabular mean ≈ 0
+    tab_train = None
     if rep in ("tab3", "tab30"):
-        m = float(np.abs(d.X["train"].mean(axis=0)).max())
-        assert m < 1e-3, f"{rep}: train not zero-centered (max|mean|={m:.2e})"
+        tab_train = d.X["train"]
+    elif rep in ("fused", "fused3"):
+        tab_train = d.X["train"]["tabular"]
+    if tab_train is not None and tab_train.size:
+        m = float(np.abs(tab_train.mean(axis=0)).max())
+        assert m < 1e-3, f"{rep}: train tabular not zero-centered (max|mean|={m:.2e})"
+    # many-to-one image join (fused3 only): every segment of a track shares the
+    # SAME parent spectrogram, yet carries its own tabular row.
+    if rep == "fused3":
+        ims, tids = d.X["train"]["image"], d.track_ids["train"]
+        # find a track with ≥2 segments in train
+        from collections import Counter
+        c = Counter(tids); multi = [t for t, k in c.items() if k >= 2]
+        assert multi, "fused3: no multi-segment track in train (join untestable)"
+        t0 = multi[0]; rows = np.where(tids == t0)[0]
+        base = ims[rows[0]]
+        for r in rows[1:]:
+            assert np.array_equal(ims[r], base), f"fused3: segments of {t0} have different images (join broken)"
+        tabs = d.X["train"]["tabular"][rows]
+        assert not np.allclose(tabs[0], tabs[1]), f"fused3: segments of {t0} have identical tabular (segments not distinct)"
+        ok(f"fused3: many-to-one join verified ({t0}: {len(rows)} segs share 1 image, distinct tab rows)")
     ok(f"{rep}: shapes ok · label_map stable · 0 tracks straddle · coverage=1.0")
     return d
 
@@ -114,7 +134,7 @@ def main():
 
     for rep in ("tab30", "tab3"):
         check_rep(data_root, rep)
-    for rep in ("image", "fused"):
+    for rep in ("image", "fused", "fused3"):
         check_rep(data_root, rep, image_size=args.image_size)
 
     gap = leakage_gap(data_root)

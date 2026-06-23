@@ -8,7 +8,7 @@
 Design (see DATA_PIPELINE.md):
   • Split on TRACKS, never segments. Stratified per genre → 70/15/15 @ coverage 1.0.
   • Fit scaler + label_map on the TRAIN split only; apply to val/test.
-  • representation ∈ {tab30, tab3, image, fused}; split_strategy ∈ {track, naive}.
+  • representation ∈ {tab30, tab3, image, fused, fused3}; split_strategy ∈ {track, naive}.
   • Returns a self-describing ``Loaded`` (arrays + label_map + feature_cols + Split).
 
 The numpy core runs WITHOUT TensorFlow. ``to_tf_dataset`` imports TF lazily, so
@@ -236,6 +236,64 @@ def _load_fused(data_root: Path, split_strategy: str, seed: int, ratios,
                         "drop_length": drop_length})
 
 
+# ------------------------------------------------------------- fused-3sec core
+def _load_fused3(data_root: Path, split_strategy: str, seed: int, ratios,
+                 standardize: bool, drop_length: bool, image_size: int,
+                 image_dir: str = "images_grey_scale") -> Loaded:
+    """mk3: tab3 ⨝ parent-track image, MANY-TO-ONE (~10 segments : 1 spectrogram).
+
+    Each 3-sec segment row is its own training sample; all ~10 segments of a track
+    share that track's single mel image (no spectrogram cutting needed — the image
+    is track-level). The split is on TRACK ids, so every segment of a track lands in
+    exactly one split — this is the load-bearing leakage guard (Sturm-2013). The
+    scaler is fit on TRAIN segments only. Structurally identical dual-input contract
+    to ``_load_fused`` (``X[split] = {'image','tabular'}``) so train.py / LLLA / HMC /
+    bundle all attach unchanged; only the row count (~10×) and clip length differ.
+    """
+    df = pd.read_csv(data_root / "features_3_sec.csv")
+    feature_cols = _feature_columns(df, drop_length)
+    df["track_id"] = df["filename"].map(track_id_from_csv)
+
+    # keep only segments whose parent track actually has an image on disk
+    avail = set(_enumerate_tracks(data_root, image_dir))
+    df = df[df["track_id"].isin(avail)].reset_index(drop=True)
+
+    X_all = df[feature_cols].to_numpy(dtype=np.float64)
+    if not np.isfinite(X_all).all():
+        raise ValueError("non-finite values in features_3_sec.csv features (assert failed)")
+    y_all = df["label"].map(LABEL_MAP).to_numpy(dtype=np.int64)
+    tid_all = df["track_id"].to_numpy()
+
+    # split on the per-segment track id → segments of a track never straddle splits
+    sp = _make_split(df["filename"].tolist(), track_id_from_csv,
+                     split_strategy, seed, ratios, data_root=data_root)
+
+    scaler = {}
+    if standardize:
+        scaler = _fit_scaler(X_all[sp.train], feature_cols)        # TRAIN segments only
+
+    cache: dict[str, np.ndarray] = {}                              # 1 load per unique track
+    def img(t):
+        if t not in cache:
+            cache[t] = _load_one_image(image_path(data_root, t, image_dir), image_size)
+        return cache[t]
+
+    X, y, tids = {}, {}, {}
+    for name, idx in (("train", sp.train), ("val", sp.val), ("test", sp.test)):
+        tab = _apply_scaler(X_all[idx], scaler) if standardize else X_all[idx].astype(np.float32)
+        ims = np.stack([img(tid_all[i]) for i in idx]).astype(np.float32) if idx.size else \
+              np.empty((0, image_size, image_size, 1), np.float32)
+        X[name] = {"image": ims, "tabular": tab}                  # parent image repeated per segment
+        y[name] = y_all[idx]
+        tids[name] = tid_all[idx]
+    return Loaded(representation="fused3", X=X, y=y, track_ids=tids, label_map=dict(LABEL_MAP),
+                  feature_cols=feature_cols, scaler=scaler, split=sp, image_size=image_size,
+                  meta={"join": "tab3 x parent image (~10:1 many-to-one)",
+                        "standardized": standardize, "drop_length": drop_length,
+                        "tab_csv": "features_3_sec.csv", "n_segments": int(len(df)),
+                        "n_tracks": int(df["track_id"].nunique())})
+
+
 # --------------------------------------------------------------------- dispatch
 def _make_split(items, track_id_fn, strategy: str, seed: int, ratios, data_root=None) -> Split:
     if strategy == "track":
@@ -283,7 +341,9 @@ def load(representation: str = "tab3",
         return _load_image(root, split_strategy, seed, ratios, standardize, image_size, image_dir)
     if representation == "fused":
         return _load_fused(root, split_strategy, seed, ratios, standardize, drop_length, image_size, image_dir)
-    raise ValueError(f"representation must be tab3|tab30|image|fused; got {representation!r}")
+    if representation == "fused3":
+        return _load_fused3(root, split_strategy, seed, ratios, standardize, drop_length, image_size, image_dir)
+    raise ValueError(f"representation must be tab3|tab30|image|fused|fused3; got {representation!r}")
 
 
 # --------------------------------------------------------------- tf.data wrapper
@@ -295,7 +355,7 @@ def to_tf_dataset(loaded: Loaded, split: str = "train", batch: int = 32,
     if shuffle is None:
         shuffle = (split == "train")
     X, y = loaded.X[split], loaded.y[split]
-    if loaded.representation == "fused":
+    if loaded.representation in ("fused", "fused3"):
         ds = tf.data.Dataset.from_tensor_slices(((X["image"], X["tabular"]), y))
     else:
         ds = tf.data.Dataset.from_tensor_slices((X, y))
@@ -337,7 +397,7 @@ def to_torch_loader(loaded: Loaded, split: str = "train", batch: int = 32,
         return t if indices is None else t[indices]
 
     yt = _sel(torch.as_tensor(np.asarray(y), dtype=torch.long))
-    if loaded.representation == "fused":
+    if loaded.representation in ("fused", "fused3"):
         img = _sel(_img_nchw(X["image"]))
         tab = _sel(torch.as_tensor(np.asarray(X["tabular"]), dtype=torch.float32))
         ds = TensorDataset(img, tab, yt)

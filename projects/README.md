@@ -32,3 +32,6 @@ instead of copying. Keep projects thin.
 
 `before/after` are the two EDA snapshots (pre-fix / post-fix); the dashboard
 toggles between them. See the top-level README for the full contract.
+
+### Run in Windows 11 - bypass shell execution policy
+ powershell -ExecutionPolicy Bypass -File .\audit_and_zip.ps1 

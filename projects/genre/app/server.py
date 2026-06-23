@@ -128,9 +128,10 @@ def infer_page():
 
 @app.post("/api/predict")
 def api_predict():
-    """Song drop-in -> per-genre scores + uncertainty. Generic across experiments:
-    lazy-imports projects/<exp>/src/predict.py and calls its predict_upload(...).
-    Lazy so the dashboard still boots without the torch/librosa training stack."""
+    """Song drop-in -> per-genre scores + uncertainty for EVERY model in the family
+    (mk1/mk2/mk3), returned as {models:[...]} for the three-graph compare view.
+    Generic across experiments: lazy-imports projects/<exp>/src/predict.py and calls
+    its predict_upload_multi(...). Lazy so the dashboard boots without the torch stack."""
     import sys, os, tempfile, importlib
     f = request.files.get("audio")
     if f is None or not f.filename:
@@ -146,7 +147,7 @@ def api_predict():
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
     f.save(tmp.name); tmp.close()
     try:
-        out = mod.predict_upload(tmp.name, EXP_ROOT)
+        out = mod.predict_upload_multi(tmp.name, EXP_ROOT)
     except Exception as e:
         return jsonify(error=f"prediction failed: {e}"), 500
     finally:

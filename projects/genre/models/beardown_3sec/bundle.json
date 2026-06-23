@@ -1,0 +1,24 @@
+{
+  "representation": "fused3",
+  "n_classes": 10,
+  "phi_dim": 384,
+  "capabilities": [
+    "posterior",
+    "datasweep",
+    "hmc"
+  ],
+  "inputs": "inputs.json",
+  "base_files": [
+    "weights.pt",
+    "arch.json",
+    "scaler.json",
+    "label_map.json",
+    "phi_train.npy",
+    "y_train.npy",
+    "ggn_eig.npz",
+    "metrics.json"
+  ],
+  "optional_files": [
+    "inputs.json"
+  ]
+}
