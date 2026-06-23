@@ -1,0 +1,27 @@
+{
+  "selected": null,
+  "entries": [
+    {
+      "id": "beardown_rrm_cfg17",
+      "family": "beardown_rrm_cfg17",
+      "dir": "projects/genre/models/beardown_rrm_cfg17",
+      "created": 1782180550,
+      "summary": {
+        "val_acc": 0.7933333333333333,
+        "val_macro_f1": 0.7978334198941246,
+        "test_acc": 0.76,
+        "test_macro_f1": 0.759861084367006,
+        "cv_mean": 0.7685704853086827,
+        "cv_std": 0.00353524340358951,
+        "test_ece": null,
+        "passed": true,
+        "accept_min": 0.75,
+        "target": 0.766
+      },
+      "has_metrics_full": false,
+      "git_sha": "e8921c2",
+      "run_id": "20260622-190911"
+    }
+  ],
+  "generated": "2026-06-22 19:09:11"
+}

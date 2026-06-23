@@ -1,0 +1,27 @@
+{
+  "selected": null,
+  "entries": [
+    {
+      "id": "beardown_rrm",
+      "family": "beardown_rrm",
+      "dir": "projects/genre/models/beardown_rrm",
+      "created": 1782174063,
+      "summary": {
+        "val_acc": 0.7066666666666667,
+        "val_macro_f1": 0.7008061765820386,
+        "test_acc": 0.68,
+        "test_macro_f1": 0.6656334269396986,
+        "cv_mean": 0.7157172028416664,
+        "cv_std": 0.007155745513425997,
+        "test_ece": null,
+        "passed": false,
+        "accept_min": 0.75,
+        "target": 0.766
+      },
+      "has_metrics_full": false,
+      "git_sha": "e8921c2",
+      "run_id": "20260622-185237"
+    }
+  ],
+  "generated": "2026-06-22 18:52:37"
+}

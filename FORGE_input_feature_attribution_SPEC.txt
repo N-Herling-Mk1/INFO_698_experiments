@@ -1,0 +1,226 @@
+================================================================================
+FORGE — INPUT-FEATURE ATTRIBUTION (epistemic sensitivity)
+Idea lock · design note · not yet built
+Author context: Steve (N-Herling-Mk1) · INFO 698 capstone · genre family
+Status: SPEC ONLY — pencilled as mk2.5 / a future FORGE capability-gated tab.
+================================================================================
+
+--------------------------------------------------------------------------------
+0. ONE-LINE STATEMENT
+--------------------------------------------------------------------------------
+Push the last-layer Laplace predictive uncertainty backward through the frozen
+backbone to land a per-input-feature sensitivity: "how much does THIS named input
+(MFCC4_var, a spectrogram time-frequency cell) drive the epistemic uncertainty of
+THIS prediction." It names the latent features the INFO 510 paper (Table A3) could
+only rank anonymously.
+
+
+--------------------------------------------------------------------------------
+1. WHY THIS EXISTS — THE WALL IT CROSSES
+--------------------------------------------------------------------------------
+FORGE's posterior lives over the FINAL Linear's weights, whose input is phi — the
+penultimate FUSED latent vector (256–768-dim). Every uncertainty statement FORGE
+makes today is in phi-coordinates: "phi-direction 47 is prior-led." But phi-
+direction 47 is a nonlinear tangle of mel-spectrogram convolutions and tabular-MLP
+activations. There is no built-in map from a phi-direction back to a raw, NAMED
+input (an MFCC stat, a frequency band).
+
+So the current ceiling is:
+  - FULL graded visibility in phi-space (latent space): which directions are prior-
+    led vs data-determined, per-direction margin (lambda_i vs tau), per-example sigma,
+    and the data-fraction curve (would more data tighten it).
+  - ZERO visibility in input-space: WHICH raw feature / modality is responsible.
+
+The wall is phi-space -> input-space. Attribution is the bridge. It does NOT require
+abandoning the frozen-backbone design; it reads the trained model, it does not train.
+
+NOTE ON VOCABULARY: "phi-space" == "latent feature space". phi is the penultimate
+fused vector the final Linear reads. The paper's "Bayesian latent features"
+(Table A3) ARE phi-directions. Same object, two names.
+
+
+--------------------------------------------------------------------------------
+2. THE MATH (rung 2 of the three-rung ladder)
+--------------------------------------------------------------------------------
+Ladder recap:
+  Rung 1 — MODALITY attribution (cheap): mask the CNN contribution to phi, recompute
+           v(phi); mask the tab contribution. "This prediction's uncertainty is X%
+           image-branch, Y% tab-branch." Same frozen bundle, two masked forward
+           passes. (mk2.5 candidate, simplest.)
+  Rung 2 — INPUT-FEATURE attribution (this doc): Jacobian d phi / d x pushed through
+           the LLLA sensitivity. Per-named-feature epistemic sensitivity. Real,
+           defensible, the reviewer-grabbing one.
+  Rung 3 — POSTERIOR over the backbone too (expensive): full-network Laplace or a
+           trained Bayesian backbone. Breaks the frozen-backbone / real-time contract.
+           Thesis chapter, not a panel. Out of scope.
+
+RUNG 2 DERIVATION (intuition, to be formalized before build):
+  LLLA gives a predictive epistemic scale for an input via the INPUT-variance factor
+      v(phi; tau) = sum_i (u_i^T phi)^2 / (lambda_i + tau)            [llla.input_variance]
+  and the per-class predictive sigma_p(phi; tau) scales with sqrt(v) through the
+  output factor Sigma_A. v (and hence sigma) is a differentiable scalar function of phi.
+
+  phi itself is a differentiable function of the inputs x = (image, tabular) via the
+  FROZEN backbone:  phi = f_backbone(x).
+
+  Therefore the epistemic sensitivity to input feature x_k is a plain chain rule:
+      d sigma / d x_k  =  (d sigma / d phi) · (d phi / d x_k)
+  - d sigma / d phi  : closed form / autograd through the (pure-numpy) LLLA scalar.
+  - d phi / d x_k    : ONE backward pass through the frozen torch backbone at x.
+
+  This is a SENSITIVITY (a saliency-style gradient), NOT a clean Bayesian posterior
+  over input weights. Precise reading: "how does this prediction's epistemic sigma move
+  if input feature k moves," with the backbone held fixed. That is exactly the per-
+  variable view we want, and it is honest about what it is. (A TRUE posterior over
+  input-feature weights is rung 3.)
+
+  TABULAR branch (57 named features): each x_k is a named, interpretable axis
+  ("mfcc4_var"). d sigma / d x_k is directly a labeled bar — THIS is the half that
+  names Table A3's latent features. BUILD THIS FIRST.
+  IMAGE branch: x is the mel spectrogram; d sigma / d x is a time-frequency saliency
+  HEATMAP. Less crisp, its own nice visual, second priority.
+
+
+--------------------------------------------------------------------------------
+3. COMPUTE-TIME vs SERVE-TIME — THE CRITICAL SPLIT
+--------------------------------------------------------------------------------
+The Jacobian d phi / d x is a property of the ALREADY-TRAINED, FROZEN backbone. It
+needs only a backward pass at a given input — same kind of gradient a saliency map
+uses, EVALUATED not learned. So rung 2 is an INFERENCE-TIME computation, NOT training-
+time. Training is over; this reads the trained model.
+
+Two halves, different homes:
+  - phi-space half (sigma, v, eigenbasis): PURE NUMPY, already in the bundle
+    (ggn_eig.npz + phi_train.npy + last Linear). This is why FORGE's posterior tabs
+    run server-side in numpy with a live tau-knob. Already live.
+  - d phi / d x half: needs a TORCH backward pass through the full BeardownNet (CNN+
+    MLP), i.e. weights.pt loaded into the real net AND the raw input x. For a NEW
+    uploaded song it also needs the raw audio -> mel -> features pipeline (librosa).
+    FORGE's bundle caches phi but NOT the means to recompute it from raw inputs at
+    serve time, and the deployed app may not carry librosa.
+
+
+--------------------------------------------------------------------------------
+4. HOW IT SHIPS IN FORGE — TWO OPTIONS (option 1 is the call)
+--------------------------------------------------------------------------------
+OPTION 1 (PREFERRED) — precompute offline, cache in bundle, serve static.
+  Add a 9th bundle artifact: attribution.npz. Written at write_bundle() time on the
+  GPU box (the one-time torch backward pass): for each training example (or a
+  representative per-genre subset), the per-input-feature epistemic sensitivity
+  d sigma / d x. FORGE then READS and RENDERS it — pure numpy / JS, real-time, NO
+  torch in the serving path. Mirrors EXACTLY how ggn_eig.npz already works: expensive
+  math precomputed once, cheap rendering live.
+    + Clean fit, no new serving deps, matches the existing pattern.
+    + For the THESIS story (name the latent features per genre) cached examples ARE
+      exactly what you want.
+    - Static: no attribution for a brand-new uploaded song, only cached examples.
+
+OPTION 2 — live attribution for uploaded songs.
+  Needs torch + librosa in the FORGE backend; forward+backward per request (~seconds,
+  like the HMC tab already tolerates). Couples FORGE to the training stack — the very
+  thing the frozen-bundle design avoids. Only worth it if "explain MY song's
+  uncertainty" is a feature you actually want. Defer.
+
+DECISION: rung 2 lives in FORGE via OPTION 1. Inference-time for the user, train-
+adjacent only for the one-time precompute. Build the TABULAR half first.
+
+
+--------------------------------------------------------------------------------
+5. CAPABILITY-GATED TABS — THE GENERIC-FORGE ARCHITECTURE
+--------------------------------------------------------------------------------
+This feature is the first concrete case of a bigger move: FORGE from "the BEARDOWN
+dashboard" -> "a generic Bayesian observatory that introspects whatever bundle it is
+handed." The mechanism: each tab DECLARES its requirements; FORGE enables a tab IFF
+the loaded bundle satisfies them. The bundle becomes BASE CONTRACT + OPTIONAL
+CAPABILITIES (graceful degradation — a bundle missing a capability still loads, the
+tab just stays dark; same property the missing-metrics_full case already has).
+
+Tab -> requirement map:
+  posterior / eigenspectrum / tau-knob   needs ggn_eig.npz + phi_train.npy + last Linear  (BASE)
+  data-fraction sweep                    needs phi_train.npy                               (BASE)
+  HMC                                     needs y_train.npy (phi-aligned)                  (optional)
+  INPUT-FEATURE ATTRIBUTION (this doc)    needs attribution.npz + an input manifest        (NEW capability)
+
+What a generic FORGE must DEMAND of an uploaded model to enable attribution:
+  (1) a differentiable path from named inputs to phi (frozen backbone) — for the
+      precompute; for the served bundle this means attribution.npz was written.
+  (2) an INPUT-FEATURE MANIFEST — names/types of the input axes
+      (["chroma_stft_mean", ..., "mfcc20_var"] for tabular; "spectrogram HxW" for
+      image). WITHOUT names you get sensitivities with no labels — uninterpretable.
+      This is THE thing generic FORGE must require of an uploaded model: "tell me what
+      your inputs are called."
+  (3) a declared input STRUCTURE (tabular vector? image? fused both?) so FORGE knows
+      to render a feature bar chart, a time-frequency heatmap, or both.
+
+GATING RULE (clean): "Attribution tab is available iff the bundle includes
+attribution.npz AND an inputs.json manifest naming the input axes." No manifest -> no
+tab, everything else still works.
+
+DESIGN MOVE TO MAKE NOW (5-min, whenever write_bundle is next touched): make the
+bundle SELF-DESCRIBING. A `capabilities` field (in arch.json or a new bundle.json)
+listing what is present, e.g. ["posterior","datasweep","hmc","attribution"]. FORGE
+reads ONE declaration instead of probing for files. This is the spine that makes the
+"load your model, run FORGE" website tractable: FORGE asks the bundle what it can do,
+the bundle answers, the tabs follow.
+
+
+--------------------------------------------------------------------------------
+6. PROPOSED FILE / CONTRACT SHAPE (for when we build)
+--------------------------------------------------------------------------------
+NEW: projects/genre/src/attribution.py — mirrors llla.py's structure.
+  - TORCH precompute side (runs at bundle-write, GPU box): for each cached example,
+    backward d phi / d x through frozen BeardownNet; combine with d sigma / d phi from
+    the LLLA scalar; write attribution.npz (per-example, per-feature sensitivity;
+    tabular vector + optional image heatmap tensor).
+  - PURE-NUMPY / serve side: load attribution.npz, aggregate per-genre, expose the
+    payload the FORGE tab renders. Unit-testable in the sandbox (no torch), same as
+    rrm.py.
+NEW artifact: projects/genre/models/<run_name>/attribution.npz   (9th file, optional)
+NEW manifest: projects/genre/models/<run_name>/inputs.json
+    { "tabular": ["chroma_stft_mean", ..., "mfcc20_var"],   # 57 names, scaler.cols order
+      "image":   {"shape": [128,128,1], "kind": "log_mel"},
+      "fused":   true }
+EXTEND: write_bundle() -> optionally emit attribution.npz + inputs.json, and add a
+        `capabilities` list to the bundle's self-description.
+NEW FORGE tab: "feature attribution" — bar chart over the 57 named tabular features
+        (per-genre selectable), + (phase 2) the spectrogram saliency heatmap.
+
+
+--------------------------------------------------------------------------------
+7. RELATION TO THE INFO 510 PAPER (the thesis hook)
+--------------------------------------------------------------------------------
+Paper Table A3 ranked LATENT Bayesian features by mean posterior variance but
+explicitly could NOT name them ("latent-feature indices do not align across models").
+Input-feature attribution NAMES them: it pushes the same posterior-variance signal
+back onto the 57 named audio features. "The model's epistemic uncertainty on disco is
+driven by spectral_centroid_var and mfcc7_var" is a sentence the paper could not write.
+This is the direct, defensible novelty hook: you are doing what Table A3 gestured at
+but could not deliver.
+
+
+--------------------------------------------------------------------------------
+8. CAVEATS / HONESTY (state these in any writeup)
+--------------------------------------------------------------------------------
+- It is a SENSITIVITY, not a posterior over input weights. "How does sigma move if x_k
+  moves," backbone fixed. A true Bayesian decomposition over inputs is rung 3.
+- Fusion is NONLINEAR (sigmoid gate), so modality contributions do NOT cleanly add:
+  v_cnn(phi) + v_tab(phi) != v_fused(phi). Report attribution per the deployed fused
+  model, do not claim a clean additive split.
+- Static cache (option 1) = attribution for cached examples only, not arbitrary new
+  songs. For the thesis story that is fine / desired.
+- Image-branch heatmap is a saliency map (gradient-based) and inherits the usual
+  saliency caveats (gradient noise, not a causal guarantee). Tabular half is the crisp,
+  defensible one — lead with it.
+
+
+--------------------------------------------------------------------------------
+9. NEXT ACTIONS (when mk2 sweep is done)
+--------------------------------------------------------------------------------
+[ ] Formalize the d sigma / d phi closed form from llla.py's logit_moments + probit
+    sigma path (so the numpy side is exact, not autograd-only).
+[ ] Spec attribution.npz layout + inputs.json schema.
+[ ] Build attribution.py torch precompute (tabular branch first) + numpy renderer.
+[ ] Add capabilities self-description to write_bundle.
+[ ] New capability-gated FORGE tab (tabular bar chart -> phase 2 image heatmap).
+[ ] Writeup hook: "naming Table A3's latent features."
+================================================================================

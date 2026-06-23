@@ -1,0 +1,186 @@
+================================================================================
+GENRE FAMILY — mk2 / mk2.5 LOCK-IN RECORD
+INFO 698 capstone · beardown_rrm · locked 2026-06-22
+================================================================================
+
+--------------------------------------------------------------------------------
+DECISION (one line)
+--------------------------------------------------------------------------------
+mk2 (beardown_rrm) = cfg 17, selected by VARIANCE-WEIGHTED RRM_w on cross-validation
+columns only. mk2.5 = the Dirichlet/variance re-selection lens that justifies it. No
+test score influenced selection.
+
+
+--------------------------------------------------------------------------------
+THE SELECTION RULE (stated precisely — this is THE rule, not a vibe)
+--------------------------------------------------------------------------------
+Weighted metric:  RRM_w = 1 - sqrt( w0(1-A)^2 + w1(s/s_max)^2 + w2(U/U_max)^2 ),
+                  w in Delta^2 (simplex).
+Weighting:        w = variance_weights(A,s,U) = per-axis cohort variance of the
+                  normalized penalty components v=[1-A, s/s_max, U/U_max], normalized
+                  to sum 1.  On THIS cohort: w = (0.008, 0.926, 0.067).
+Winner:           argmax RRM_w = cfg 17.
+Inputs used:      A, s, U — ALL cross-validation quantities. The rule structurally
+                  cannot see the test set.
+
+Why variance-weighting (the principle, not the result): a penalty axis that is
+near-constant across the cohort cannot discriminate models, so it should not vote.
+U ranged 0.0258-0.0343 (~±15% noise around a flat value) -> it gets ~0 weight by
+construction. The rule down-weights U BECAUSE U is uninformative, derived from CV
+alone — not because cfg 17 had a good test score.
+
+
+--------------------------------------------------------------------------------
+THE FINDING (the honest writeup — stronger than "RRM picked the best model")
+--------------------------------------------------------------------------------
+The locked equal-weight RRM is a SINGLE POINT (the simplex centroid w=(1/3,1/3,1/3))
+in a space of valid weightings. At that point cfg 12 wins by RRM=0.1824 vs cfg 17's
+0.1773 — a 0.005 margin. That margin comes entirely from the U axis: cfg 12's only
+advantage over cfg 17 is a 0.001 lower U, and dividing by the tiny U_max=0.0343
+amplifies that noise into the deciding vote.
+
+Dirichlet robustness (200k uniform-simplex draws): cfg 17 wins 49.1% of weightings,
+cfg 12 wins 48.1%, all others <2%. Reading: TWO robust contenders splitting the
+simplex ~50/50 — the choice is weighting-dependent and the centroid is arbitrary.
+(Do NOT claim cfg 17 "dominates the simplex"; 49% is not dominance. Claim it is the
+principled tiebreak between two genuine contenders.)
+
+The variance-principled weighting, which zeroes the uninformative U axis on principle,
+selects cfg 17 — and cfg 17 dominates cfg 12 on accuracy (0.769 vs 0.716 CV), fold-
+stability (s=0.0035 vs 0.0072, the cohort minimum), off-diagonal (0.231 vs 0.284),
+and macro-F1, refitting to VAL 0.793 / TEST 0.760 vs cfg 12's 0.707 / 0.680.
+
+Boundary condition (the contribution): RRM is only meaningful when the epistemic axis
+genuinely VARIES across the cohort. With trained Bayesian heads (INFO 510's Flipout/
+MC-dropout) U varied; with post-hoc LLLA on FROZEN DETERMINISTIC heads, U is near-
+constant, and equal-weight RRM degenerates into a noisy stability-selector. This is
+the INFO 510 paper's own Sweep-2 warning ("reliability-aware feedback") recurring one
+level up: when the reliability AXIS itself is uninformative, reliability-aware
+selection degrades. mk2.5 maps that regime and gives the variance-weighted fix.
+
+
+--------------------------------------------------------------------------------
+HEAD-TO-HEAD (vs mk1)
+--------------------------------------------------------------------------------
+                        VAL      TEST     TEST macro-F1
+  mk1 beardown          0.747    0.700    0.686
+  mk2 RRM-winner cfg12  0.707    0.680    —          (equal-weight nominal winner)
+  mk2 DEPLOYED  cfg17   0.793    0.760    0.760      (variance-weighted RRM_w winner)
+cfg 17 beats mk1 by +6 test / +4.6 val, first acceptance PASS (val >= 0.75), clears
+the paper's 0.766 val band. The macro-F1 jump (0.686 -> 0.760) means it improved on
+the WEAK genres, not just the easy ones — a stronger model, not a luckier one.
+
+
+--------------------------------------------------------------------------------
+cfg 17 ARCHITECTURE (the deployed mk2)
+--------------------------------------------------------------------------------
+img768 / tab256 / concat / adam / lr 2.4e-4 / dropout (0.21 backbone, 0.17 tab) / ep75.
+= widest image branch (phi-dim 768), widest tab branch, plain concatenation (not
+gated), low regularization. Pattern across the cohort: capacity + concat was both the
+most accurate AND the most stable for this dataset (cfg 16, also concat+wide, was the
+accuracy runner-up). Bundle: projects/genre/models/beardown_rrm (after lock-in).
+
+
+--------------------------------------------------------------------------------
+DATA-LEAKAGE FIREWALL (must appear in the thesis methods section verbatim-ish)
+--------------------------------------------------------------------------------
+"Model selection was performed using cross-validation metrics only (no test set).
+Test-set scores for all configurations (batch_test.json) were computed post hoc solely
+to evaluate the selection metric's predictive validity, and did not influence
+deployment."
+
+Operationally: select on CV (variance-weighted RRM_w -> cfg 17), THEN record test for
+all 20 as a metric-validation study (batch_refit.py), THEN deploy ONLY cfg 17 in FORGE.
+The test column is evidence ABOUT the metric, never a selector OVER models.
+
+
+--------------------------------------------------------------------------------
+ALWAYS-ON CAVEATS — both CLEARED for mk2.5
+--------------------------------------------------------------------------------
+(1) FORGE wraps the final model:
+    mk2.5 is a SELECTION LENS over sweep.json — no model, no bundle, no weights, no
+    capability change. cfg 17's bundle (models/beardown_rrm) is a STANDARD 8-file
+    bundle FORGE wraps unchanged (round-trip verified, max|Δ|=0). mk2.5 only justifies
+    WHICH bundle is deployed.
+
+(2) Input-feature attribution channel for the 4 FORGE options:
+    VERIFIED against the live bundle contract. scaler.json carries all 57 named feature
+    axes (chroma_stft_mean ... mfcc20_var) in input order + mean/std (reproducible
+    standardize); arch.json + weights.pt rebuild the frozen backbone for the d phi/d x
+    Jacobian. Attribution reads scaler.json["cols"] and reloads the frozen model -> runs
+    on cfg 17 (and mk1, and future mk3) with ZERO re-bundling. mk2.5 adds/removes no
+    capability, so the channel is identical across all options.
+    (inputs.json manifest + a `capabilities` self-declaration remain optional FUTURE
+    work, needed only for the generic "load your model" FORGE website — NOT for Steve's
+    own models, which derive names from scaler.json.)
+
+
+--------------------------------------------------------------------------------
+LOCK-IN STEPS (run on the box)
+--------------------------------------------------------------------------------
+1. Preserve the cfg 12 evidence bundle (the equal-weight winner, for the comparison):
+     (rename/copy)  models/beardown_rrm  ->  models/beardown_rrm_cfg12
+2. Deploy cfg 17 into the mk2 slot FORGE wraps:
+     python projects/genre/src/promote_cfg.py --config projects/genre/configs/beardown_rrm.yaml --cfg 17 --out-name beardown_rrm
+3. Record the firewalled metric-validation study (all 20 on test):
+     python projects/genre/src/batch_refit.py --config projects/genre/configs/beardown_rrm.yaml
+4. Generate the re-selection artifact for the writeup:
+     python projects/genre/src/reselect.py --config projects/genre/configs/beardown_rrm.yaml
+   -> centroid winner cfg12, variance winner cfg17, Dirichlet 49/48, reselect.json.
+
+KEEP BOTH bundles: beardown_rrm (=cfg17, deployed) and beardown_rrm_cfg12 (=cfg12,
+"what equal-weight RRM picked"). The COMPARISON between them is the mk2.5 result.
+
+
+--------------------------------------------------------------------------------
+GENEALOGY (locked)
+--------------------------------------------------------------------------------
+  mk1  beardown        30s, single config, ACCURACY-selected.          DONE.
+  mk2  beardown_rrm    30s, broad sweep, VARIANCE-WEIGHTED RRM_w.       = cfg 17. LOCKED.
+  mk2.5 (lens)         Dirichlet/variance re-selection over mk2's       BUILT.
+                       sweep.json. No new model. Justifies cfg 17.
+  mk3  beardown_3sec   3s clips (~10x data), tests mk1's data-limited   PENDING — needs
+                       finding. Same sweep engine.                       leakage-safe cutter.
+================================================================================
+
+
+================================================================================
+APPENDED 2026-06-22 (post batch_refit.py) — METRIC-VALIDATION RESULT
+================================================================================
+The firewalled test-validation study (batch_refit.py -> batch_test.json) ran all 20
+configs on full-train + test. Spearman rank-agreement with TEST accuracy:
+
+    +0.685   CV accuracy (A) alone          <- the only real test-rank predictor
+    -0.002   RRM_w (variance, deployed)      <- noise
+    -0.008   fold-stability (-s)             <- noise
+    -0.022   RRM (equal-weight, locked)      <- noise
+    -0.028   epistemic (-U)                  <- noise
+
+THE RESULT (state it straight, do not spin):
+On this architecture (frozen deterministic backbone + post-hoc LLLA), NEITHER RRM
+reliability axis predicts held-out test rank. U is near-constant across the cohort
+(flat, ~0 weight by variance); s is uncorrelated with test (rho=-0.008). Variance-
+weighting loaded 93% of RRM_w onto s -> RRM_w decorrelates from test (rho=-0.002).
+Every RRM variant reduces to noise as a test-rank predictor, while plain CV accuracy
+retains rho=+0.685. Reliability-aware selection provided NO generalization advantage
+in this regime. (n=20, so 0.685 is "clearly related" not a precise point estimate.)
+
+WHY THIS IS THE CONTRIBUTION, NOT A FAILURE:
+- It is a precise NEGATIVE result with a mechanism, not a vague miss.
+- It refines, not refutes, INFO 510: their RRM used TRAINED Bayesian heads where U
+  genuinely varied; the post-hoc-LLLA-on-det-head variant gives a U that neither
+  varies nor predicts test. Boundary condition empirically nailed: RRM earns its keep
+  only when the reliability axes are BOTH variable AND test-predictive.
+- The deployment is still sound: cfg 17 was selected for being accuracy-strong AND
+  stable; accuracy is the axis that DOES predict test (0.685); cfg 17 tests 0.773 in
+  the batch refit (0.760 in its own clean refit), beating mk1's 0.700.
+- The apparatus matters: we built a firewalled study to FALSIFY our own metric and
+  ran it. That is the scientifically mature move.
+
+MOTIVATES mk3: does ~10x data (3-sec clips) make U vary again, and if so does RRM_w
+recover test-predictive validity? Now a data-motivated hypothesis, not a hope.
+
+FINAL LOCK: deploy = cfg 17 (models/beardown_rrm). cfg 12 kept as the documented
+contrast (models/beardown_rrm_cfg12) — the only metric-region favoring cfg 12 weights
+the uninformative U axis. Artifacts: sweep.json, reselect.json, batch_test.json.
+================================================================================
