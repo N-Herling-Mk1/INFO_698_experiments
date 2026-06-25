@@ -1,0 +1,12 @@
+# FORGE phonon MODEL 1 — verified-working stack (2026-06).
+# NOTE: torch_cluster / torch_scatter are NOT required — edges come from ASE and
+# pooling is a plain segment-mean, so the two hardest-to-compile deps are gone.
+torch>=2.1
+e3nn>=0.5
+torch_geometric>=2.4
+ase>=3.22
+numpy
+tqdm
+pyyaml
+# original tutorial pins (fallback if a modern e3nn API ever drifts):
+#   torch==1.10.0  e3nn==0.4.2  torch-geometric==2.0.2

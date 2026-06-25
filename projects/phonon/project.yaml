@@ -1,14 +1,31 @@
-# Genealogy header for the phonon project. Drives the site's "project genealogy".
+# Genealogy header for the phonon project.
 project: phonon
 domain: "Condensed matter — phonon density of states"
-status: skeleton            # skeleton | active | complete
+status: active             # skeleton | active | complete
 dataset:
-  name: TBD
-  source: "TBD (DOS reproduction paper)"
-  license: "TBD"
-  representations: [TBD]
-  known_issues: []          # emitted by eda/run_eda.py
+  name: "Chen et al. phonon DOS (DFPT, Petretto 2018 subset)"
+  source: "github.com/zhantaochen/phonondos_e3nn"
+  license: "see upstream repo"
+  representations: [periodic_crystal_graph, mass_onehot_118, dos_51bin_0_1000cm]
+  n_materials: 1524
+  splits: {train: 1220, test: 152, val: 152}
+  known_issues: []
 reproductions:
   - id: phonon_net
-    source: "TBD"
-    target_metric: TBD
+    source: "Chen et al., Adv. Sci. 8, 2004214 (2021); arXiv:2009.05163"
+    arch: "E(3)NN gate_points_2101 — em64/L1/mul32/2-layer/rmax5"
+    target_metric: omega_bar_within_10pct
+    target_value: 0.70
+genealogy:
+  - mk: 1
+    name: e3nn_repro
+    kind: "faithful deterministic replication"
+    status: "code complete + verified (forward/train/eval); full GPU run pending"
+  - mk: 2
+    name: "e3nn + LLLA"
+    kind: "Bayesian last-layer (calibrated per-bin credible intervals)"
+    status: planned
+  - mk: 3
+    name: "info-theory + sweeps"
+    kind: "JS/EMD/spectral-entropy metrics + Optuna sweep across architecture ladder"
+    status: planned
