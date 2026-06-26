@@ -268,6 +268,16 @@ def glossary_data():
     return jsonify(json.loads(fp.read_text(encoding="utf-8")))
 
 
+@app.get("/api/provenance")
+def provenance_data():
+    """Canonical data-provenance record (phase-independent): <root>/data/provenance.json.
+    The Data panel bakes a copy for offline use but prefers this when present."""
+    fp = DATA / "provenance.json"
+    if not fp.exists():
+        return jsonify(error="no provenance.json in data/", experiment=EXPERIMENT), 404
+    return jsonify(json.loads(fp.read_text(encoding="utf-8")))
+
+
 @app.get("/api/data")
 def data_artifacts():
     """Bundle the data-pipeline artifacts for the Data panel (phase-independent):
