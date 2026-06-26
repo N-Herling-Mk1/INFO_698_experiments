@@ -1,0 +1,301 @@
+{
+  "schema": "dist_quality/1.0",
+  "phase": "after",
+  "generated": "2026-06-25 18:49:57",
+  "order": [
+    "omega_bar",
+    "omega_peak",
+    "omega_cutoff",
+    "spectral_spread",
+    "spectral_entropy",
+    "spectral_skew",
+    "spectral_kurtosis",
+    "dos_peak",
+    "dos_integral",
+    "n_active_bins",
+    "n_elements",
+    "n_atoms",
+    "mean_atomic_mass",
+    "max_Z"
+  ],
+  "vars": {
+    "omega_bar": {
+      "label": "mean phonon frequency \u27e8\u03c9\u27e9",
+      "unit": "cm\u207b\u00b9",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 212, IQR [139, 302]; right-skewed (skew +0.88); 21 IQR-outlier(s) (1.4%). Clean, well-behaved.",
+      "stats": {
+        "median": 212.40338281644824,
+        "mean": 230.5412516174448,
+        "std": 115.94994613750777,
+        "min": 44.01874285741502,
+        "max": 766.3692479595728,
+        "iqr": 162.43732508047464,
+        "skew": 0.8764404719980429,
+        "n_outliers": 21,
+        "outlier_frac": 0.0138,
+        "n_nan": 0
+      }
+    },
+    "omega_peak": {
+      "label": "dominant peak frequency",
+      "unit": "cm\u207b\u00b9",
+      "verdict": "minor",
+      "flags": [
+        "114 IQR-outliers (7.5%)",
+        "strong skew +2.1"
+      ],
+      "blurb": "median 120, IQR [60, 220]; right-skewed (skew +2.09); 114 IQR-outlier(s) (7.5%). Usable \u2014 watch the noted tail.",
+      "stats": {
+        "median": 120.0,
+        "mean": 178.5564304461942,
+        "std": 170.69327593598445,
+        "min": 20.0,
+        "max": 1000.0,
+        "iqr": 160.0,
+        "skew": 2.0863542728472004,
+        "n_outliers": 114,
+        "outlier_frac": 0.0748,
+        "n_nan": 0
+      }
+    },
+    "omega_cutoff": {
+      "label": "spectral cutoff \u03c9_max",
+      "unit": "cm\u207b\u00b9",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 500, IQR [300, 700]; near-symmetric (skew +0.37); no IQR-outliers. Clean, well-behaved.",
+      "stats": {
+        "median": 500.0,
+        "mean": 520.01312335958,
+        "std": 251.6900194316522,
+        "min": 80.0,
+        "max": 1000.0,
+        "iqr": 400.0,
+        "skew": 0.3660273157436801,
+        "n_outliers": 0,
+        "outlier_frac": 0.0,
+        "n_nan": 0
+      }
+    },
+    "spectral_spread": {
+      "label": "spectral spread \u03c3_\u03c9",
+      "unit": "cm\u207b\u00b9",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 124, IQR [72.5, 191]; right-skewed (skew +0.54); no IQR-outliers. Clean, well-behaved.",
+      "stats": {
+        "median": 123.8909226809139,
+        "mean": 137.15796489617978,
+        "std": 73.75735400345566,
+        "min": 19.41745015447121,
+        "max": 353.67320732652064,
+        "iqr": 118.8368068601945,
+        "skew": 0.5406187787091805,
+        "n_outliers": 0,
+        "outlier_frac": 0.0,
+        "n_nan": 0
+      }
+    },
+    "spectral_entropy": {
+      "label": "normalized spectral entropy",
+      "unit": "0\u20131",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 0.7, IQR [0.612, 0.794]; near-symmetric (skew -0.17); no IQR-outliers. Clean, well-behaved.",
+      "stats": {
+        "median": 0.7000899721786207,
+        "mean": 0.6993544641371107,
+        "std": 0.12112098452289403,
+        "min": 0.3402036362647296,
+        "max": 0.9556037136449138,
+        "iqr": 0.1822725016083866,
+        "skew": -0.16866758243307636,
+        "n_outliers": 0,
+        "outlier_frac": 0.0,
+        "n_nan": 0
+      }
+    },
+    "spectral_skew": {
+      "label": "spectral skewness",
+      "unit": "",
+      "verdict": "minor",
+      "flags": [
+        "strong skew +5.8"
+      ],
+      "blurb": "median 0.492, IQR [0.092, 0.848]; right-skewed (skew +5.78); 23 IQR-outlier(s) (1.5%). Usable \u2014 watch the noted tail.",
+      "stats": {
+        "median": 0.4921077415504247,
+        "mean": 0.5225295109133715,
+        "std": 0.6885838352232386,
+        "min": -0.7781414139744746,
+        "max": 11.46254579792226,
+        "iqr": 0.7558972854797097,
+        "skew": 5.7761964117460876,
+        "n_outliers": 23,
+        "outlier_frac": 0.0151,
+        "n_nan": 0
+      }
+    },
+    "spectral_kurtosis": {
+      "label": "spectral kurtosis",
+      "unit": "",
+      "verdict": "minor",
+      "flags": [
+        "91 IQR-outliers (6.0%)",
+        "strong skew +25.1"
+      ],
+      "blurb": "median 2.18, IQR [1.84, 2.62]; right-skewed (skew +25.09); 91 IQR-outlier(s) (6.0%). Usable \u2014 watch the noted tail.",
+      "stats": {
+        "median": 2.1760070034368733,
+        "mean": 2.6886034117461515,
+        "std": 7.2109107745361,
+        "min": 1.1097329114889012,
+        "max": 210.90221970312234,
+        "iqr": 0.7805555207821295,
+        "skew": 25.092624605642186,
+        "n_outliers": 91,
+        "outlier_frac": 0.0597,
+        "n_nan": 0
+      }
+    },
+    "dos_peak": {
+      "label": "peak DOS height",
+      "unit": "norm.",
+      "verdict": "flag",
+      "flags": [
+        "no variance (degenerate)"
+      ],
+      "blurb": "Peak-normalized target pins every spectrum at 1.0 \u2014 zero variance. Carries no information as a feature; expected, not a data error.",
+      "stats": {
+        "median": 1.0,
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "iqr": 0.0,
+        "skew": null,
+        "n_outliers": 0,
+        "outlier_frac": 0.0,
+        "n_nan": 0
+      }
+    },
+    "dos_integral": {
+      "label": "integral g(\u03c9) d\u03c9",
+      "unit": "norm.\u00b7cm\u207b\u00b9",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 162, IQR [125, 229]; right-skewed (skew +1.09); 51 IQR-outlier(s) (3.4%). Clean, well-behaved.",
+      "stats": {
+        "median": 162.12416698870263,
+        "mean": 186.17823765078882,
+        "std": 83.74663322188573,
+        "min": 55.3065254558701,
+        "max": 520.7032022021413,
+        "iqr": 103.97679997456365,
+        "skew": 1.0927641854030674,
+        "n_outliers": 51,
+        "outlier_frac": 0.0335,
+        "n_nan": 0
+      }
+    },
+    "n_active_bins": {
+      "label": "active bins (>1% of peak)",
+      "unit": "bins",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 20, IQR [14, 29]; right-skewed (skew +0.62); no IQR-outliers. Clean, well-behaved.",
+      "stats": {
+        "median": 20.0,
+        "mean": 22.02034120734908,
+        "std": 10.068979733370494,
+        "min": 4.0,
+        "max": 50.0,
+        "iqr": 15.0,
+        "skew": 0.6206814926569818,
+        "n_outliers": 0,
+        "outlier_frac": 0.0,
+        "n_nan": 0
+      }
+    },
+    "n_elements": {
+      "label": "distinct elements",
+      "unit": "",
+      "verdict": "minor",
+      "flags": [
+        "573 IQR-outliers (37.6%)"
+      ],
+      "blurb": "median 3, IQR [3, 3]; near-symmetric (skew +0.05); 573 IQR-outlier(s) (37.6%). Usable \u2014 watch the noted tail.",
+      "stats": {
+        "median": 3.0,
+        "mean": 2.8891076115485563,
+        "std": 0.6257020673235717,
+        "min": 1.0,
+        "max": 5.0,
+        "iqr": 0.0,
+        "skew": 0.05212388511225047,
+        "n_outliers": 573,
+        "outlier_frac": 0.376,
+        "n_nan": 0
+      }
+    },
+    "n_atoms": {
+      "label": "atoms per formula unit",
+      "unit": "",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 8, IQR [5, 10]; right-skewed (skew +0.66); 3 IQR-outlier(s) (0.2%). Clean, well-behaved.",
+      "stats": {
+        "median": 8.0,
+        "mean": 7.369422572178478,
+        "std": 3.2731838971555662,
+        "min": 1.0,
+        "max": 40.0,
+        "iqr": 5.0,
+        "skew": 0.6610196702628608,
+        "n_outliers": 3,
+        "outlier_frac": 0.002,
+        "n_nan": 0
+      }
+    },
+    "mean_atomic_mass": {
+      "label": "mean atomic mass",
+      "unit": "u",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 54.4, IQR [36.7, 76]; right-skewed (skew +0.82); 25 IQR-outlier(s) (1.6%). Clean, well-behaved.",
+      "stats": {
+        "median": 54.440666666666665,
+        "mean": 59.349308636467796,
+        "std": 30.134148373696334,
+        "min": 3.974,
+        "max": 196.967,
+        "iqr": 39.2360340909091,
+        "skew": 0.8244445239151819,
+        "n_outliers": 25,
+        "outlier_frac": 0.0164,
+        "n_nan": 0
+      }
+    },
+    "max_Z": {
+      "label": "heaviest element Z",
+      "unit": "",
+      "verdict": "clean",
+      "flags": [],
+      "blurb": "median 50, IQR [34, 56]; near-symmetric (skew +0.05); no IQR-outliers. Clean, well-behaved.",
+      "stats": {
+        "median": 50.0,
+        "mean": 48.4238845144357,
+        "std": 20.109127274443644,
+        "min": 3.0,
+        "max": 83.0,
+        "iqr": 22.0,
+        "skew": 0.0542622107494536,
+        "n_outliers": 0,
+        "outlier_frac": 0.0,
+        "n_nan": 0
+      }
+    }
+  }
+}
